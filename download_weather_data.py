@@ -1,3 +1,5 @@
+# This script automates the download of 88 csv weather files and saves them to data/raw/weather
+
 import os
 import requests
 from time import sleep
@@ -34,15 +36,15 @@ for year in range(2018, 2026):
             continue
 
         try:
-            print(f"⬇️ Downloading {filename}...")
+            print(f"Downloading {filename}...")
             response = requests.get(BASE_URL, params=params)
             response.raise_for_status()
 
             with open(filepath, "wb") as f:
                 f.write(response.content)
 
-            print(f"✅ Saved: {filename}")
-            sleep(1)  # Respectful delay
+            print(f"Saved: {filename}")
+            sleep(1)  # delay
 
         except Exception as e:
-            print(f"❌ Failed to download {filename}: {e}")
+            print(f"Failed to download {filename}: {e}")
