@@ -23,7 +23,6 @@ def create_features(df, lags=[1, 2, 3], roll_windows=[3]):
 
     #  Rolling features 
     for win in roll_windows:
-        df[f'HOEP_ma_{win}'] = df['HOEP'].rolling(window=win).mean()
         df[f'Demand_ma_{win}'] = df['Ontario Demand'].rolling(window=win).mean()
 
     # Drop rows with any NA created by shift/rolling
