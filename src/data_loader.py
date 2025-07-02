@@ -1,4 +1,3 @@
-# src/data_loader.py
 import os
 import pandas as pd
 
@@ -78,7 +77,7 @@ def load_weather(raw_weather_dir):
 
     weather_df = pd.concat(dfs, ignore_index=True)
 
-    # Clean column names (some have trailing spaces or quotes)
+    # Clean column names 
     weather_df.columns = weather_df.columns.str.strip().str.replace('"', '')
 
     # Rename to clean and parse timestamp
@@ -99,7 +98,7 @@ def load_weather(raw_weather_dir):
     weather_df = weather_df[list(cols_to_keep.keys())].rename(columns=cols_to_keep)
     weather_df = weather_df.set_index("timestamp")
 
-    # Optional: optimize memory usage
+    # Optimize memory usage
     weather_df = weather_df.astype("float32")
 
     return weather_df
@@ -121,20 +120,9 @@ def merge_all(hoep_demand_df, weather_df):
     return df_merged.reset_index()
 
 
-if __name__ == "__main__":
-    raw_hoep_dir = "data/raw"
-    raw_weather_dir = "data/raw/weather"
 
-    print(" Loading HOEP and Demand...")
-    hd_df = load_hoep_and_demand(raw_hoep_dir)
 
-    print(" Loading Weather...")
-    weather_df = load_weather(raw_weather_dir)
+   
 
-    print(" Merging all sources...")
-    merged_df = merge_all(hd_df, weather_df)
 
-    print(" Done. Preview:")
-    print(merged_df.head())
-    print(" Shape:", merged_df.shape)
-    print(" Time range:", merged_df['timestamp'].min(), "→", merged_df['timestamp'].max())
+    
