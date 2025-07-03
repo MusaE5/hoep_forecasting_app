@@ -59,9 +59,9 @@ missing = [col for col in features if col not in full_df.columns]
 if missing:
     raise ValueError(f"Missing columns in DataFrame: {missing}")
 
-# ---- 2. Force every feature & target numeric ----------------------------
+
 X = full_df[features].apply(pd.to_numeric, errors="coerce")
-#=== Inspect Features Before Training ===
+# Inspect features before training
 print("\n=== Training Features ===")
 print("Features:", features)
 print("\nColumn Types:\n", X.dtypes.value_counts())
@@ -69,12 +69,12 @@ print("\nSummary Stats:\n", X.describe().T)
 print("\nMissing values per column:\n", X.isna().sum())
 y = pd.to_numeric(full_df[target], errors="coerce")
 
-# Drop any rows with NaNs created by coercion
+# Drop any rows with NaNs 
 mask = X.notna().all(axis=1) & y.notna()
 X = X[mask]
 y = y[mask]
 
-# ---- 3. Scale and split --------------------------------------------------
+# Scale and split
 scaler = StandardScaler()
 X_scaled = scaler.fit_transform(X)
 
@@ -82,7 +82,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X_scaled, y.to_numpy(dtype="float32"), test_size=0.2, shuffle=False
 )
 
-# ---- 4. Build & train NN -------------------------------------------------
+# Build NN
 
 model = Sequential([
     Dense(64, activation="relu", input_shape=(X_train.shape[1],)),
@@ -99,12 +99,12 @@ model.fit(
     batch_size=32,
     validation_split=0.1,
 )
-# ---- 5. Evaluate ---------------------------------------------------------
+# Evaluate
 y_pred = model.predict(X_test, verbose=0).flatten()
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 print(f"\nRMSE: {rmse:.2f} CAD/MWh")
 
-# ---- 6. Save -------------------------------------------------------------
+# Save
 
 os.makedirs("models", exist_ok=True)
 model.save("models/hoep_nn_weather.keras")
