@@ -31,7 +31,6 @@ full_df    = create_features(merged_df)
 
 # Select final feature list
 features = [
-    "Hour 1 Predispatch",
     "OR 10 Min Sync",
     "OR 30 Min",
     "Ontario Demand",
