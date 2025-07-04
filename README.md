@@ -52,7 +52,6 @@ hoep_forecasting_app/
 
 | Feature             | Description                        |
 |---------------------|------------------------------------|
-| Hour 1 Predispatch  | Market pre-dispatch price          |
 | OR 10 Min Sync      | Operating reserve 10-minute (sync) |
 | OR 30 Min           | Operating reserve 30-minute        |
 | Ontario Demand      | Total demand (MW)                  |
@@ -78,7 +77,7 @@ To understand the contribution of different feature groups, we trained the same 
 
 | Experiment                  | Features Removed                        | RMSE (↓ better) |
 |----------------------------|------------------------------------------|-----------------|
-| **Full Model**             | –                                        | **0.37**        |
+| **Full Model**             | –                                        | **0.89**        |
 | No Weather                 | `temp`, `humidity`, `wind_speed`         | 1.97            |
 | No HOEP Lag/Rolling       | `HOEP_lag_1/2/3`, `HOEP_ma_3`            | 18.23           |
 | No Demand Lag/Rolling     | `Demand_lag_1/2/3`, `Demand_ma_3`        | 13.00           |
