@@ -16,14 +16,13 @@ def create_features(df, lags=[1, 2, 3], roll_windows=[3]):
 
     # Lag features 
     for lag in lags:
-        df[f'Demand_lag_{lag}'] = df['Ontario Demand'].shift(lag)
-        df[f'HOEP_lag_{lag}'] = df['HOEP'].shift(lag)
+        df[f'Demand_lag_{lag}'] = df['Ontario Demand'].shift(lag + 1)  # t-(lag+1)
+        df[f'HOEP_lag_{lag}'] = df['HOEP'].shift(lag + 1)              # t-(lag+1)
 
     # Rolling features 
     for win in roll_windows:
-        df[f'Demand_ma_{win}'] = df['Ontario Demand'].rolling(window=win).mean()
-        df[f'HOEP_ma_{win}'] = df['HOEP'].rolling(window=win).mean()
-
+        df[f'Demand_ma_{win}'] = df['Ontario Demand'].shift(1).rolling(window=win).mean()  # t-1 to t-win
+        df[f'HOEP_ma_{win}'] = df['HOEP'].shift(1).rolling(window=win).mean()              # t-1 to t-win
     # Drop rows with any NA created by shift/rolling
     df = df.dropna()
 
