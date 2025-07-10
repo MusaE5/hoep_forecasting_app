@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def create_features(df, lags=[1, 2, 24], roll_windows=[3, 24]):
+def create_features(df, lags=[2,3, 24], roll_windows=[3, 24]):
     """
     Takes the merged DataFrame with raw columns:
       - timestamp, HOEP,
@@ -30,11 +30,11 @@ def create_features(df, lags=[1, 2, 24], roll_windows=[3, 24]):
     
     # --- Rolling means on lagged measured & HOEP features ---
     for win in roll_windows:
-        df[f'demand_ma_{win}']     = df['demand_lag_1'].rolling(win).mean()
-        df[f'temp_ma_{win}']       = df['temp_lag_1'].rolling(win).mean()
-        df[f'humidity_ma_{win}']   = df['humidity_lag_1'].rolling(win).mean()
-        df[f'wind_speed_ma_{win}'] = df['wind_speed_lag_1'].rolling(win).mean()
-        df[f'HOEP_ma_{win}']       = df['HOEP_lag_1'].rolling(win).mean()
+        df[f'demand_ma_{win}']     = df['demand_lag_2'].rolling(win).mean()
+        df[f'temp_ma_{win}']       = df['temp_lag_2'].rolling(win).mean()
+        df[f'humidity_ma_{win}']   = df['humidity_lag_2'].rolling(win).mean()
+        df[f'wind_speed_ma_{win}'] = df['wind_speed_lag_2'].rolling(win).mean()
+        df[f'HOEP_ma_{win}']       = df['HOEP_lag_2'].rolling(win).mean()
     
     # --- Keep raw forecast features as-is (no shift) ---
     #    Hour 1 Predispatch, OR 10 Min Sync, OR 30 Min
