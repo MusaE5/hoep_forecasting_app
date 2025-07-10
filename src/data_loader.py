@@ -146,14 +146,14 @@ def load_weather(raw_weather_dir):
     weather_df = weather_df[list(cols_to_keep.keys())].rename(columns=cols_to_keep)
     weather_df = weather_df.set_index("timestamp")
 
-    # Optimize memory usage
+    # Convert to float32
     weather_df = weather_df.astype("float32")
 
+    # Sort and forward fill missing weather values
     weather_df = weather_df.sort_index()
-
+    weather_df[["temp", "humidity", "wind_speed"]] = weather_df[["temp", "humidity", "wind_speed"]].ffill()
 
     return weather_df
-
 
 def merge_all(hoep_demand_df, weather_df):
     """
