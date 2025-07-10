@@ -16,7 +16,7 @@ TIMEZONE = "America/Toronto"
 NAMESPACE = {'ns': 'http://www.ieso.ca/schema'}
 
 def fetch_realtime_totals():
-    """Return dict with demand + OR values from the latest 5-min row."""
+    """Return dict with demand + OR values from the latest 5-min row, plus market demand."""
     r = requests.get(URL_TOTALS, headers=HEADERS, timeout=15)
     r.raise_for_status()
 
@@ -34,12 +34,12 @@ def fetch_realtime_totals():
     latest = df.iloc[-1]          # last 5-min interval
 
     return {
-        "hour": int(latest["HOUR"]),
-        "interval": int(latest["INTERVAL"]),
-        "demand_MW": float(latest["TOTAL LOAD"]),
-        "or10_sync_MW": float(latest["TOTAL 10S"]),
-        "or10_non_MW": float(latest["TOTAL 10N"]),
-        "or30_MW": float(latest["TOTAL 30R"]),
+        "hour":               int(latest["HOUR"]),
+        "interval":           int(latest["INTERVAL"]),
+        "demand_MW":          float(latest["TOTAL LOAD"]),
+        "or10_sync_MW":       float(latest["TOTAL 10S"]),
+        "or10_non_MW":        float(latest["TOTAL 10N"]),
+        "or30_MW":            float(latest["TOTAL 30R"]),
     }
 
 def fetch_current_weather():
@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Add zonal price data if available
     if zonal_price is not None:
         feat["zonal_price"] = zonal_price
-        feat["zonal_timestamp"] = zonal_timestamp
+       
     
     feat["timestamp"] = datetime.now().isoformat(timespec="seconds")
 
