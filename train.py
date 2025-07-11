@@ -1,20 +1,21 @@
 import os
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-plt.style.use("default")
+
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, LeakyReLU, Input
 from tensorflow.keras.optimizers import Adam
 from keras.callbacks import EarlyStopping
+
 import joblib
 
 from src.data_loader import load_hoep_and_demand, load_weather, merge_all
 from src.feature_engineering import create_features
 
-# --- Load and merge data ---
+# Load and merge data
 RAW_HOEP_DIR    = "data/raw"
 RAW_WEATHER_DIR = "data/raw/weather"
 
@@ -24,11 +25,11 @@ merged_df  = merge_all(hd_df, weather_df)
 full_df    = create_features(merged_df)
 full_df.columns = full_df.columns.str.strip()
 
-# --- Time-based split ---
+# Time based, no Train test split
 df_train = full_df[full_df["timestamp"] < "2024-01-01"]
 df_test  = full_df[full_df["timestamp"] >= "2024-01-01"]
 
-# --- Select features and target ---
+# Select features
 features = [
     "hour_sin", "hour_cos", "is_weekend",
     "day_of_year", "doy_sin", "doy_cos",
@@ -46,24 +47,24 @@ features = [
 ]
 target = "HOEP"
 
-# --- Build features and targets ---
+
 X_train_raw = df_train[features].apply(pd.to_numeric, errors="coerce")
 y_train     = pd.to_numeric(df_train[target], errors="coerce")
 X_test_raw  = df_test[features].apply(pd.to_numeric, errors="coerce")
 y_test      = pd.to_numeric(df_test[target], errors="coerce")
 
 
-# --- Leak check ---
+# Leak check (See highly correlated features)
 corr_df = pd.concat([X_train_raw, y_train.rename('HOEP')], axis=1).corr()
 print("=== Top Feature Correlations with HOEP ===")
 print(corr_df['HOEP'].abs().sort_values(ascending=False).head(10), "\n")
 
-# --- Scale ---
+
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train_raw)
 X_test  = scaler.transform(X_test_raw)
 
-# --- Build and Train NN ---
+
 model = Sequential([
     Input(shape=(X_train.shape[1],)),
     Dense(64),
@@ -80,7 +81,7 @@ early_stop = EarlyStopping(
     restore_best_weights=True
 )
 
-history = model.fit(
+model.fit(
     X_train, y_train,
     validation_split=0.1,
     epochs=50,
@@ -89,7 +90,7 @@ history = model.fit(
     verbose=1
 )
 
-# --- Evaluate ---
+# Evaluate
 y_pred = model.predict(X_test, verbose=0).flatten()
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 mae  = mean_absolute_error(y_test, y_pred)
@@ -100,7 +101,7 @@ print(f"MAE:  {mae:.2f} CAD/MWh")
 print(f"R2:   {r2:.3f}\n")
 
 
-# --- Save model and scaler ---
+# Save model
 os.makedirs("models", exist_ok=True)
 model.save("models/hoep_nn_weather.keras")
 joblib.dump(scaler, "models/feature_scaler.pkl")
