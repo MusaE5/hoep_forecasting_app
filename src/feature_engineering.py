@@ -27,6 +27,10 @@ def create_features(df, lags=[2,3, 24], roll_windows=[3, 24]):
         df[f'humidity_lag_{k}']     = df['humidity'].shift(k)
         df[f'wind_speed_lag_{k}']   = df['wind_speed'].shift(k)
         df[f'HOEP_lag_{k}']         = df['HOEP'].shift(k)
+        df[f'OR_30_Min_lag_{k}']         = df['OR 30 Min'].shift(k)
+        df[f'OR_10_Min_sync_lag{k}']         = df['OR 10 Min Sync'].shift(k)
+        df[f'OR_10_Min_non-sync_lag{k}']         = df['OR 10 Min non-sync'].shift(k)
+
     
     # --- Rolling means on lagged measured & HOEP features ---
     for win in roll_windows:

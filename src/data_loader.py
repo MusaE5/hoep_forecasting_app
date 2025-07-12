@@ -1,5 +1,3 @@
-import os
-import pandas as pd
 
 import os
 import pandas as pd
@@ -67,7 +65,7 @@ def load_hoep_and_demand(raw_dir, start_year=2002, end_year=2025, validate_data=
     demand_df['timestamp'] = demand_df['Date'] + pd.to_timedelta(demand_df['Hour'] - 1, unit='h')
 
     # Select relevant columns
-    price_cols = ['HOEP', 'Hour 1 Predispatch', 'OR 10 Min Sync', 'OR 30 Min']
+    price_cols = ['HOEP', 'Hour 1 Predispatch','Hour 2 Predispatch', 'Hour 3 Predispatch', 'OR 10 Min Sync', 'OR 30 Min', 'OR 10 Min non-sync']
     hoep_clean = hoep_df[['timestamp'] + price_cols].copy()
     demand_clean = demand_df[['timestamp', 'Ontario Demand']].copy()
 
@@ -83,6 +81,10 @@ def load_hoep_and_demand(raw_dir, start_year=2002, end_year=2025, validate_data=
 
     # Forward fill ONLY Hour 1 Predispatch
     merged_hd['Hour 1 Predispatch'] = merged_hd['Hour 1 Predispatch'].fillna(method='ffill')
+    
+    merged_hd['Hour 2 Predispatch'] = merged_hd['Hour 2 Predispatch'].fillna(method='ffill')
+
+    merged_hd['Hour 3 Predispatch'] = merged_hd['Hour 3 Predispatch'].fillna(method='ffill')
 
     # Optional data validation
     if validate_data:

@@ -2,14 +2,9 @@ import os
 import numpy as np
 import pandas as pd
 
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Dense, LeakyReLU, Input
-from tensorflow.keras.optimizers import Adam
-from keras.callbacks import EarlyStopping
-
+from xgboost import XGBRegressor
 import joblib
 
 from src.data_loader import load_hoep_and_demand, load_weather, merge_all
@@ -50,67 +45,43 @@ features = [
     "OR_10_Min_sync_lag24",
     "OR_10_Min_non-sync_lag2",
     "OR_10_Min_non-sync_lag3",
-    "OR_10_Min_non-sync_lag24",
+    "OR_10_Min_non-sync_lag24"
 ]
 
 target = "HOEP"
 
-
-X_train_raw = df_train[features].apply(pd.to_numeric, errors="coerce")
+X_train = df_train[features].apply(pd.to_numeric, errors="coerce")
 y_train     = pd.to_numeric(df_train[target], errors="coerce")
-X_test_raw  = df_test[features].apply(pd.to_numeric, errors="coerce")
+X_test  = df_test[features].apply(pd.to_numeric, errors="coerce")
 y_test      = pd.to_numeric(df_test[target], errors="coerce")
 
 
-# Leak check (See highly correlated features)
-corr_df = pd.concat([X_train_raw, y_train.rename('HOEP')], axis=1).corr()
-print("=== Top Feature Correlations with HOEP ===")
-print(corr_df['HOEP'].abs().sort_values(ascending=False).head(10), "\n")
 
-
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train_raw)
-X_test  = scaler.transform(X_test_raw)
-
-
-model = Sequential([
-    Input(shape=(X_train.shape[1],)),
-    Dense(64),
-    LeakyReLU(alpha=0.01),
-    Dense(32),
-    LeakyReLU(alpha=0.01),
-    Dense(1)
-])
-model.compile(optimizer=Adam(0.001), loss="mse")
-
-early_stop = EarlyStopping(
-    monitor='val_loss',
-    patience=3,
-    restore_best_weights=True
+# XGBoost model
+model = XGBRegressor(
+    n_estimators=300,
+    max_depth=6,
+    learning_rate=0.05,
+    subsample=0.8,
+    colsample_bytree=0.8,
+    random_state=42
 )
 
-model.fit(
-    X_train, y_train,
-    validation_split=0.1,
-    epochs=50,
-    batch_size=32,
-    callbacks=[early_stop],
-    verbose=1
-)
+model.fit(X_train, y_train)
 
-# Evaluate
-y_pred = model.predict(X_test, verbose=0).flatten()
+# Predict and evaluate
+y_pred = model.predict(X_test)
 rmse = np.sqrt(mean_squared_error(y_test, y_pred))
 mae  = mean_absolute_error(y_test, y_pred)
 r2   = r2_score(y_test, y_pred)
-print(f"\nNeural Network Performance ")
+
+print(f"\nXGBoost Performance")
 print(f"RMSE: {rmse:.2f} CAD/MWh")
 print(f"MAE:  {mae:.2f} CAD/MWh")
 print(f"R2:   {r2:.3f}\n")
 
-
 # Save model
 os.makedirs("models", exist_ok=True)
-model.save("models/hoep_nn_weather.keras")
-joblib.dump(scaler, "models/feature_scaler.pkl")
+joblib.dump(model, "models/hoep_xgb_model.pkl")
+joblib.dump(scaler, "models/feature_scaler_xgb.pkl")
 print("Model and scaler saved in /models")

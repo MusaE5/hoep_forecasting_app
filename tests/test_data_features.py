@@ -44,7 +44,7 @@ def test_data_loader():
 
     print(f"\nLoaded {len(df):,} rows")
 
-    price_cols = ['HOEP', 'Hour 1 Predispatch', 'OR 10 Min Sync', 'OR 30 Min']
+    price_cols = ['HOEP', 'Hour 1 Predispatch', 'OR 10 Min Sync', 'OR 30 Min', 'OR 10 Min non-sync']
     env_cols = ['Ontario Demand', 'temp', 'humidity', 'wind_speed']
 
     validate_columns(df, price_cols, title="PRICE DATA VALIDATION")
