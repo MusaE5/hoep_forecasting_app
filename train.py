@@ -15,6 +15,7 @@ import joblib
 from src.data_loader import load_hoep_and_demand, load_weather, merge_all
 from src.feature_engineering import create_features
 
+
 # Load and merge data
 RAW_HOEP_DIR    = "data/raw"
 RAW_WEATHER_DIR = "data/raw/weather"
@@ -114,3 +115,45 @@ os.makedirs("models", exist_ok=True)
 model.save("models/hoep_nn_weather.keras")
 joblib.dump(scaler, "models/feature_scaler.pkl")
 print("Model and scaler saved in /models")
+
+# Add helper functions to trsin quantiles on same scaled features
+from quantile_model import (
+    train_quantile_models,
+    evaluate_quantile_predictions,
+    calculate_prediction_intervals,
+    plot_quantile_predictions,
+    save_quantile_models
+)
+
+
+print("Training quantile regression models...")
+quantile_predictions, quantile_models = train_quantile_models(
+    X_train, y_train, X_test, y_test, method='separate'
+)
+
+print("\nEvaluating quantile predictions...")
+results = evaluate_quantile_predictions(y_test, quantile_predictions)
+
+print("\n=== Quantile Regression Results ===")
+for q_name, metrics in results.items():
+    print(f"\nQuantile {q_name}:")
+    print(f"  RMSE: {metrics['rmse']:.2f}")
+    print(f"  Pinball Loss: {metrics['pinball_loss']:.2f}")
+    print(f"  Coverage: {metrics['coverage']:.3f} (expected: {metrics['expected_coverage']:.3f})")
+
+# Calculate prediction intervals
+intervals = calculate_prediction_intervals(quantile_predictions)
+
+print("\n=== Prediction Intervals ===")
+for interval_name, interval_data in intervals.items():
+    avg_width = np.mean(interval_data['width'])
+    print(f"{interval_name} interval average width: {avg_width:.2f} CAD/MWh")
+
+# Plot results
+plot_quantile_predictions(y_test, quantile_predictions)
+
+print(f"Median quantile RMSE: {results['q_50']['rmse']:.2f}")
+
+# Define config
+features_list = features  # Already defined in your existing script
+save_quantile_models(quantile_models, scaler, features_list, model_dir="models")
