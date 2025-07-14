@@ -1,96 +1,76 @@
 # HOEP Forecasting App
 
-This project forecasts Ontario’s Hourly Ontario Energy Price (HOEP) using weather data, electricity demand, and operating reserve metrics. It uses a neural network trained on historical data and performs live inference using real-time public APIs.
+This app forecasts Ontario’s Hourly Ontario Energy Price (HOEP) 1 hour in advance using real-time public data. It uses a neural network trained on 2024–2025 data and performs live inference using APIs from IESO and Open-Meteo. The model produces **point forecasts** and **uncertainty estimates** via quantile regression.
 
 ---
 
 ##  Project Summary
 
-- Forecast HOEP up to 1 hour ahead
-- Use only publicly available real-time features
-- Achieve low RMSE suitable for production use
-- Support future deployment as a forecasting API or dashboard
+- **Goal**: Predict HOEP 1 hour ahead using only live-accessible features
+- **Approach**: Quantile regression (neural networks) for probabilistic forecasting
+- **Application**: Real-time forecasting API or interactive dashboard
+- **Deployment Ready**: All inputs can be pulled via API or web scraping in real-time
 
 ---
 
-## Model Summary
+## 🔢 Input Features
 
-- **Type**: Feedforward Neural Network (2 hidden layers)
-- **Input Features**: Demand, Price Lagged features, operating reserves, weather, lagged values, and time encodings
-- **Loss**: MSE
-- **Optimizer**: Adam
-- **Frameworks**: TensorFlow, scikit-learn
+All features are accessible or computable from public APIs with <1 hour delay.
 
----
-##  Folder Structure
+| Category             | Features Included                                                              |
+|----------------------|----------------------------------------------------------------------------------|
+| **Time Encodings**   | `hour_sin`, `hour_cos`, `is_weekend`, `day_of_year`, `doy_sin`, `doy_cos`       |
+| **HOEP Lags**        | `HOEP_lag_2`, `HOEP_lag_3`, `HOEP_lag_24`                                       |
+| **Demand Lags**      | `demand_lag_2`, `demand_lag_3`, `demand_lag_24`                                 |
+| **Demand MA**        | `demand_ma_3`, `demand_ma_24`                                                   |
+| **Weather Lags**     | `temp/humidity/wind_speed_lag_2/3/24`                                           |
+| **Weather MA**       | `temp/humidity/wind_speed_ma_3/24`                                              |
+| **Operating Reserve**| `OR_30_Min_lag_2/3/24`, `OR_10_Min_sync_lag2/3/24`, `OR_10_Min_non-sync_lag2/3/24`|
 
-hoep_forecasting_app/
-│
-├── data/
-│   └── raw/
-│       ├── weather/               # Historical weather CSVs
-│       └── hoep_demand.csv        # HOEP & demand CSVs
-│
-├── models/
-│   ├── hoep_nn_weather.keras      # Trained neural network
-│   └── feature_scaler.pkl         # Saved StandardScaler
-│
-├── src/
-│   ├── data_loader.py             # Loading & merging raw data
-│   ├── feature_engineering.py     # Lag, rolling, time features
-│   └── live_fetchy.py           # Live API fetch for real-time inference
-│
-├── tests/
-│   └── test_data_features.py      # Pipeline test script
-│
-├── train.py                       # Model training script
-└── README.md
+**Total Features**: 39  
+**Scaling**: StandardScaler (saved as `.pkl`)
 
 ---
 
-## Input Features
+## 📊 Model Summary
 
-| Feature             | Description                        |
-|---------------------|------------------------------------|
-| OR 10 Min Sync      | Operating reserve 10-minute (sync) |
-| OR 30 Min           | Operating reserve 30-minute        |
-| Ontario Demand      | Total demand (MW)                  |
-| temp, humidity, wind| Weather data from Open-Meteo       |
-| hour_sin/cos        | Hour of day (cyclical encoding)    |
-| HOEP_lag_1/2/3      | Past HOEP values (1–3 hr lag)      |
-| HOEP_ma_3           | 3-hour HOEP rolling average        |
-| Demand_lag_1/2/3    | Past demand values                 |
-| Demand_ma_3         | 3-hour demand moving average       |
+- **Architecture**: Separate neural network per quantile (q10, q50, q90)
+- **Loss**: Quantile loss (pinball loss)
+- **Frameworks**: TensorFlow + scikit-learn
+- **Inference**: Fully automated using real-time API pipelines
 
 ---
 
-##  Model Performance
+##  Model Performance (2024–2025 Hour-1 Forecast)
 
-- **Train/Test Split**: 80/20 (no shuffle)
-- **RMSE**: ~ **0.37 CAD/MWh** (on 2025 data)
-- **Scaler**: StandardScaler (saved as .pkl)
-
----
-## 🔬 Ablation Study
-
-To understand the contribution of different feature groups, we trained the same model with specific features removed. The RMSE (Root Mean Squared Error) was used to evaluate performance on a held-out test set.
-
-| Experiment                  | Features Removed                        | RMSE (↓ better) |
-|----------------------------|------------------------------------------|-----------------|
-| **Full Model**             | –                                        | **0.43**        |
-| No Weather                 | `temp`, `humidity`, `wind_speed`         | 1.97            |
-| No HOEP Lag/Rolling       | `HOEP_lag_1/2/3`, `HOEP_ma_3`            | 18.23           |
-| No Demand Lag/Rolling     | `Demand_lag_1/2/3`, `Demand_ma_3`        | 13.00           |
+| Metric                  | Value              |
+|-------------------------|--------------------|
+| **RMSE (q_50)**         | **33.94 CAD/MWh**  |
+| **MAE (q_50)**          | 11.19 CAD/MWh      |
+| **R² (q_50)**           | 0.287              |
+| **80% Interval Width**  | ~5–6 CAD/MWh       |
+| **Hour-1 Predispatch RMSE** | 39.50 CAD/MWh |
+| **XGBoost RMSE (q_50)** | 34.35 CAD/MWh      |
 
 ---
 
-> Live Inference (Supported)
+##  Quantile Regression Coverage
 
-Live fetch script uses:
-- [IESO RealtimeTotals](hhttps://reports-public.ieso.ca/public/RealtimeOntarioZonalPrice/PUB_RealtimeOntarioZonalPrice.xml)
-- [Open-Meteo API](https://open-meteo.com/)
-
-To simulate real-time inference with proper lags and scaling.
+| Quantile | Expected Coverage | Actual Coverage | RMSE   |
+|----------|-------------------|------------------|--------|
+| q_10     | 10%               | 7.3%             | 38.36  |
+| q_50     | 50%               | 44.4%            | 33.94  |
+| q_90     | 90%               | 85.8%            | 38.02  |
 
 ---
+
+## 🌐 Live Inference
+
+- **Weather**: [Open-Meteo API](https://open-meteo.com/)
+- **Demand + HOEP**: [IESO Real-Time Reports](https://www.ieso.ca/en/Power-Data/Data-Directory)
+- **Lag Simulation**: Uses hourly polling & aggregation to simulate input availability
+- **Prediction**: 1-hour ahead price & 80% confidence interval
+
+---
+
 
