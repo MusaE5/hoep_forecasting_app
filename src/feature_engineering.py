@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-def create_features(df, lags=[2,3, 24], roll_windows=[3, 24]):
+def create_features(df, lags=[2,3, 24], roll_windows=[3, 23]):
     """
     Takes the merged DataFrame with raw columns:
       - timestamp, HOEP,

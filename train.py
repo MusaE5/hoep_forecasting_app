@@ -39,11 +39,11 @@ features = [
     "humidity_lag_2", "humidity_lag_3", "humidity_lag_24",
     "wind_speed_lag_2", "wind_speed_lag_3", "wind_speed_lag_24",
     "HOEP_lag_2", "HOEP_lag_3", "HOEP_lag_24",
-    "demand_ma_3", "demand_ma_24",
-    "temp_ma_3", "temp_ma_24",
-    "humidity_ma_3", "humidity_ma_24",
-    "wind_speed_ma_3", "wind_speed_ma_24",
-    "HOEP_ma_3", "HOEP_ma_24"
+    "demand_ma_3", "demand_ma_23",
+    "temp_ma_3", "temp_ma_23",
+    "humidity_ma_3", "humidity_ma_23",
+    "wind_speed_ma_3", "wind_speed_ma_23",
+    "HOEP_ma_3", "HOEP_ma_23"
 ]
 
 target = "HOEP"
