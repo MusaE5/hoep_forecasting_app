@@ -43,15 +43,7 @@ features = [
     "temp_ma_3", "temp_ma_24",
     "humidity_ma_3", "humidity_ma_24",
     "wind_speed_ma_3", "wind_speed_ma_24",
-    "HOEP_ma_3", "HOEP_ma_24", "OR_30_Min_lag_2",
-    "OR_30_Min_lag_3",
-    "OR_30_Min_lag_24",
-    "OR_10_Min_sync_lag2",
-    "OR_10_Min_sync_lag3",
-    "OR_10_Min_sync_lag24",
-    "OR_10_Min_non-sync_lag2",
-    "OR_10_Min_non-sync_lag3",
-    "OR_10_Min_non-sync_lag24",
+    "HOEP_ma_3", "HOEP_ma_24"
 ]
 
 target = "HOEP"

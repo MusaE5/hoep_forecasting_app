@@ -2,7 +2,7 @@
 import os
 import pandas as pd
 
-def load_hoep_and_demand(raw_dir, start_year=2002, end_year=2025, validate_data=True):
+def load_hoep_and_demand(raw_dir, start_year=2013, end_year=2025, validate_data=True):
     """
     Load and combine HOEP and Demand CSVs from `raw_dir`.
     Returns a DataFrame with:
@@ -65,7 +65,7 @@ def load_hoep_and_demand(raw_dir, start_year=2002, end_year=2025, validate_data=
     demand_df['timestamp'] = demand_df['Date'] + pd.to_timedelta(demand_df['Hour'] - 1, unit='h')
 
     # Select relevant columns
-    price_cols = ['HOEP', 'Hour 1 Predispatch','Hour 2 Predispatch', 'Hour 3 Predispatch', 'OR 10 Min Sync', 'OR 30 Min', 'OR 10 Min non-sync']
+    price_cols = ['HOEP']
     hoep_clean = hoep_df[['timestamp'] + price_cols].copy()
     demand_clean = demand_df[['timestamp', 'Ontario Demand']].copy()
 
@@ -79,12 +79,6 @@ def load_hoep_and_demand(raw_dir, start_year=2002, end_year=2025, validate_data=
     # Merge HOEP and Demand on timestamp
     merged_hd = pd.merge(hoep_clean, demand_clean, on='timestamp', how='inner')
 
-    # Forward fill ONLY Hour 1 Predispatch
-    merged_hd['Hour 1 Predispatch'] = merged_hd['Hour 1 Predispatch'].fillna(method='ffill')
-    
-    merged_hd['Hour 2 Predispatch'] = merged_hd['Hour 2 Predispatch'].fillna(method='ffill')
-
-    merged_hd['Hour 3 Predispatch'] = merged_hd['Hour 3 Predispatch'].fillna(method='ffill')
 
     # Optional data validation
     if validate_data:
@@ -135,7 +129,6 @@ def load_weather(raw_weather_dir):
 
     # Parse datetime
     weather_df["timestamp"] = pd.to_datetime(weather_df["timestamp"], errors="coerce")
-    weather_df = weather_df.dropna(subset=["timestamp"])
 
     # Keep relevant features only
     cols_to_keep = {
@@ -157,18 +150,16 @@ def load_weather(raw_weather_dir):
 
     return weather_df
 
+
 def merge_all(hoep_demand_df, weather_df):
-    """
-    Merge the HOEP/Demand DataFrame with weather DataFrame on 'timestamp'.
-    Returns a unified DataFrame.
-    """
-    df_hd = hoep_demand_df.copy()
-
-    # Ensure timestamp is datetime and set as index for merge
-    df_hd['timestamp'] = pd.to_datetime(df_hd['timestamp'])
-    df_hd = df_hd.set_index('timestamp')
-
-    # Join on timestamp
-    df_merged = df_hd.join(weather_df, how='inner')
-
-    return df_merged.reset_index()
+    # Use left join to keep all HOEP/Demand records
+    df_merged = pd.merge(hoep_demand_df, weather_df, on='timestamp', how='left')
+    
+    # Forward fill weather data after merge
+    cols_to_fill = ['temp', 'humidity', 'wind_speed', 'HOEP']
+    df_merged[cols_to_fill] = df_merged[cols_to_fill].ffill()
+    
+    # Optionally back fill remaining missing values
+    df_merged[cols_to_fill] = df_merged[cols_to_fill].bfill()
+    
+    return df_merged
