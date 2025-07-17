@@ -4,6 +4,28 @@ from datetime import datetime, timedelta
 import joblib
 from pathlib import Path
 import os
+import tensorflow as tf
+def quantile_loss(q):
+    def loss(y_true, y_pred):
+        error = y_true - y_pred
+        return tf.reduce_mean(tf.maximum(q * error, (q - 1) * error))
+    return loss
+
+def load_quantile_models():
+    """Load all three quantile models with custom loss functions"""
+    model_dir = PROJECT_ROOT / "models"
+    
+    custom_objects_10 = {'loss': quantile_loss(0.1)}
+    custom_objects_50 = {'loss': quantile_loss(0.5)}  
+    custom_objects_90 = {'loss': quantile_loss(0.9)}
+    
+    models = {
+        'q10': load_model(model_dir / "hoep_quantile_q_10.keras", custom_objects=custom_objects_10),
+        'q50': load_model(model_dir / "hoep_quantile_q_50.keras", custom_objects=custom_objects_50), 
+        'q90': load_model(model_dir / "hoep_quantile_q_90.keras", custom_objects=custom_objects_90)
+    }
+    
+    return models
 
 PROJECT_ROOT = Path(__file__).parent.parent  # Goes up two levels from src/
 
@@ -11,6 +33,7 @@ PROJECT_ROOT = Path(__file__).parent.parent  # Goes up two levels from src/
 def load_scaler():
     scaler_path = PROJECT_ROOT / "models" / "feature_scaler.pkl"
     return joblib.load(scaler_path)
+
 
 def load_buffer(buffer_file):
     """Loads existing data buffer"""
@@ -62,7 +85,7 @@ def calculate_features(buffer_df):
         'HOEP_lag_3': price_col.iloc[-2],  # Hour before
         'HOEP_lag_24': price_col.iloc[-23],  
         'HOEP_ma_3': price_col.iloc[-3:].mean(),
-        'HOEP_ma_23': demand_col.iloc[-24:].mean()
+        'HOEP_ma_23': price_col.iloc[-24:].mean()
 
 
     }
@@ -114,6 +137,7 @@ def calculate_features(buffer_df):
    **humid_features,
    'is_weekend': df['is_weekend'].iloc[-1],
    'doy_sin': df['doy_sin'].iloc[-1],
+   'day_of_year': df['day_of_year'].iloc[-1],
    'doy_cos': df['doy_cos'].iloc[-1]
     }
 
@@ -156,7 +180,19 @@ if __name__ == "__main__":
     features_dict = calculate_features(df)
 
     scaled_features = process_new_data(features_dict)
-    print(scaled_features)
+    
+    models = load_quantile_models()
+    predictions = {
+    'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
+    'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
+    'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
+      }
+    
+    print("HOEP Predictions:")
+    print(f"10th percentile: ${predictions['q10']:.2f}")
+    print(f"50th percentile: ${predictions['q50']:.2f}")
+    print(f"90th percentile: ${predictions['q90']:.2f}")
+    print(predictions)
 
     
     
