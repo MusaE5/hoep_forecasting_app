@@ -22,6 +22,9 @@ This app forecasts Ontario's Hourly Ontario Energy Price (HOEP) 1 hour in advanc
 | IESO Hour-1 Predispatch | 39.5 | Industry baseline | ❌ Point estimates only |
 | XGBoost Baseline | 34.4 | Reference | ❌ Point estimates only |
 
+![HOEP Forecast](assets/comparisons.png)
+
+
 **Value Proposition**: First real-time HOEP forecasting system with uncertainty quantification that beats industry performance.
 
 ---
@@ -36,13 +39,12 @@ All features are accessible or computable from public APIs with <1 hour delay.
 | **HOEP Lags** | `HOEP_lag_2/3/24` | IESO Real-Time |
 | **Demand Lags** | `demand_lag_2/3/24`, `demand_ma_3/24` | IESO Real-Time |
 | **Weather Features** | `temp/humidity/wind_speed_lag_2/3/24`, moving averages | Open-Meteo API |
-| **Operating Reserves** | `OR_30_Min`, `OR_10_Min_sync/non-sync` lags 2/3/24h | IESO Real-Time |
 
 **Data Pipeline**: Fully automated with proper lag enforcement to prevent data leakage.
 
 ---
 
-## 🧠 Model Architecture
+## Model Architecture
 
 - **Type**: Separate neural networks per quantile (q10, q50, q90)
 - **Architecture**: 128-64-32-1 with LeakyReLU and Dropout
@@ -58,6 +60,8 @@ All features are accessible or computable from public APIs with <1 hour delay.
   'q_90': 39.2    # 90th percentile (high estimate)
 }
 ```
+![HOEP Forecast](assets/80thpercentile.png)
+
 
 ---
 
