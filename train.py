@@ -66,49 +66,8 @@ X_train = scaler.fit_transform(X_train_raw)
 X_test  = scaler.transform(X_test_raw)
 
 
-model = Sequential([
-    Input(shape=(X_train.shape[1],)),
-    Dense(64),
-    LeakyReLU(alpha=0.01),
-    Dense(32),
-    LeakyReLU(alpha=0.01),
-    Dense(1)
-])
-model.compile(optimizer=Adam(0.001), loss="mse")
 
-early_stop = EarlyStopping(
-    monitor='val_loss',
-    patience=3,
-    restore_best_weights=True
-)
-
-model.fit(
-    X_train, y_train,
-    validation_split=0.1,
-    epochs=50,
-    batch_size=32,
-    callbacks=[early_stop],
-    verbose=1
-)
-
-# Evaluate
-y_pred = model.predict(X_test, verbose=0).flatten()
-rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-mae  = mean_absolute_error(y_test, y_pred)
-r2   = r2_score(y_test, y_pred)
-print(f"\nNeural Network Performance ")
-print(f"RMSE: {rmse:.2f} CAD/MWh")
-print(f"MAE:  {mae:.2f} CAD/MWh")
-print(f"R2:   {r2:.3f}\n")
-
-
-# Save model
-os.makedirs("models", exist_ok=True)
-model.save("models/hoep_nn_weather.keras")
-joblib.dump(scaler, "models/feature_scaler.pkl")
-print("Model and scaler saved in /models")
-
-# Add helper functions to trsin quantiles on same scaled features
+# Add helper functions to train quantiles on same scaled features
 from quantile_model import (
     train_quantile_models,
     evaluate_quantile_predictions,
