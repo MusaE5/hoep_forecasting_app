@@ -1,0 +1,47 @@
+{
+  "quantiles": [
+    0.1,
+    0.5,
+    0.9
+  ],
+  "model_files": {
+    "q_10": "hoep_quantile_q_10.keras",
+    "q_50": "hoep_quantile_q_50.keras",
+    "q_90": "hoep_quantile_q_90.keras"
+  },
+  "scaler_file": "quantile_feature_scaler.pkl",
+  "features": [
+    "hour_sin",
+    "hour_cos",
+    "is_weekend",
+    "day_of_year",
+    "doy_sin",
+    "doy_cos",
+    "demand_lag_2",
+    "demand_lag_3",
+    "demand_lag_24",
+    "temp_lag_2",
+    "temp_lag_3",
+    "temp_lag_24",
+    "humidity_lag_2",
+    "humidity_lag_3",
+    "humidity_lag_24",
+    "wind_speed_lag_2",
+    "wind_speed_lag_3",
+    "wind_speed_lag_24",
+    "HOEP_lag_2",
+    "HOEP_lag_3",
+    "HOEP_lag_24",
+    "demand_ma_3",
+    "demand_ma_23",
+    "temp_ma_3",
+    "temp_ma_23",
+    "humidity_ma_3",
+    "humidity_ma_23",
+    "wind_speed_ma_3",
+    "wind_speed_ma_23",
+    "HOEP_ma_3",
+    "HOEP_ma_23"
+  ],
+  "method": "separate"
+}
