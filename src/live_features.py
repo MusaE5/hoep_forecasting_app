@@ -5,6 +5,8 @@ import joblib
 from pathlib import Path
 import os
 import tensorflow as tf
+
+
 def quantile_loss(q):
     def loss(y_true, y_pred):
         error = y_true - y_pred
@@ -31,7 +33,7 @@ PROJECT_ROOT = Path(__file__).parent.parent  # Goes up two levels from src/
 
 # Helper functions
 def load_scaler():
-    scaler_path = PROJECT_ROOT / "models" / "feature_scaler.pkl"
+    scaler_path = PROJECT_ROOT / "models" / "quantile_feature_scaler.pkl"
     return joblib.load(scaler_path)
 
 
