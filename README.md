@@ -47,7 +47,7 @@ All features are accessible or computable from public APIs with <1 hour delay.
 - **Type**: Separate neural networks per quantile (q10, q50, q90)
 - **Architecture**: 128-64-32-1 with LeakyReLU and Dropout
 - **Loss Function**: Quantile loss (pinball loss) for uncertainty estimation
-- **Training**: 2018-2023 data, validated on 2024-2025
+- **Training**: 2013-2023 data, validated on 2024-2025
 - **Frameworks**: TensorFlow, scikit-learn, pandas
 
 ```python
