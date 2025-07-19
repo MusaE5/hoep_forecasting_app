@@ -132,6 +132,49 @@ All features are accessible or computable from public APIs with <1 hour delay.
 
 ---
 
+## 📁 Project Structure
+
+```text
+hoep_forecasting_app/
+├── train.py                         # Main training script 
+├── live_prediction.py               # Feature engineering live data, scale, and feed to quantile models for predictions
+├── requirements.txt                 # Python dependencies
+├── README.md                        # Project documentation
+│
+├── src/                             # Core source code
+│   ├── data_loader.py               # Load + preprocess HOEP, demand, weather
+│   ├── feature_engineering.py       # Lag/rolling/encoded features
+│   ├── live_fetch.py                # Real-time IESO + weather API fetch
+│   └── quantile_model.py            # Define Quantile model architecture, loss, training, saving functions
+│
+├── models/                          # Trained models and scalers
+│   ├── hoep_quantile_q_10.keras     # Neural network (10th percentile)
+│   ├── hoep_quantile_q_50.keras     # Neural network (median)
+│   ├── hoep_quantile_q_90.keras     # Neural network (90th percentile)
+│   ├── hoep_xgb_model.pkl           # XGBoost point forecast model
+│   ├── quantile_config.json         # Metadata for loading quantile models
+│   ├── quantile_feature_scaler.pkl  # Scaler used during training
+│   └── train_xgboost.py             # XGBoost training script (not part of live system)
+│
+├── scripts/                         
+│   └── download_weather_data.py     # Downloads historical weather data
+│
+├── data/                            # ⛔ gitignored during version control
+│   ├── raw/
+│   │   ├── weather/                 # Open-Meteo CSVs
+│   │   └── ...                      # HOEP and demand reports (2013–2025)
+│   └── hoep_buffer.csv              # Most recent sample for live prediction
+│
+├── assets/                          # Visuals used in README
+│   ├── 80thpercentile.png           # Actual vs q50 + 80% prediction band
+│   └── comparisons.png              # q50 vs HOEP vs IESO Hour-1 Predispatch
+│
+└── tests/
+    ├── test_baseline_rmse.py        # Compares model vs IESO RMSE baseline
+    └── test_data_features.py        # Validates merged features and missing data
+
+```
+
 ## 📈 Model Comparison
 
 ```
