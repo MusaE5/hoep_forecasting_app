@@ -68,7 +68,7 @@ X_test  = scaler.transform(X_test_raw)
 
 
 # Add helper functions to train quantiles on same scaled features
-from quantile_model import (
+from src.quantile_model import (
     train_quantile_models,
     evaluate_quantile_predictions,
     calculate_prediction_intervals,
@@ -106,5 +106,5 @@ plot_quantile_predictions(y_test, quantile_predictions)
 print(f"Median quantile RMSE: {results['q_50']['rmse']:.2f}")
 
 # Define config
-features_list = features  # Already defined in your existing script
+features_list = features  
 save_quantile_models(quantile_models, scaler, features_list, model_dir="models")
