@@ -44,17 +44,6 @@ def create_multi_quantile_model(input_shape, quantiles=quantiles):
     model.compile(optimizer=Adam(0.001), loss=combined_quantile_loss)
     return model
 
-def create_single_quantile_model(input_shape, quantile):
-    model = Sequential([
-        Input(shape=(input_shape,)),
-        Dense(64),
-        LeakyReLU(alpha=0.01),
-        Dense(32),
-        LeakyReLU(alpha=0.01),
-        Dense(1)
-    ])
-    model.compile(optimizer=Adam(0.001), loss=quantile_loss(quantile))
-    return model
 
 # --- Training ---
 def train_quantile_models(X_train, y_train, X_test, y_test, method='separate'):

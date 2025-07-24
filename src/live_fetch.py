@@ -44,10 +44,7 @@ def fetch_realtime_totals():
     return {
         "hour":               int(latest["HOUR"]),
         "interval":           int(latest["INTERVAL"]),
-        "demand_MW":          float(latest["TOTAL LOAD"]),
-        "or10_sync_MW":       float(latest["TOTAL 10S"]),
-        "or10_non_MW":        float(latest["TOTAL 10N"]),
-        "or30_MW":            float(latest["TOTAL 30R"]),
+        "demand_MW":          float(latest["TOTAL LOAD"])
     }
 
 def fetch_current_weather():

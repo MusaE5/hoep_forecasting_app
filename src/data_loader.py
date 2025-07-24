@@ -161,5 +161,6 @@ def merge_all(hoep_demand_df, weather_df):
     
     # Optionally back fill remaining missing values
     df_merged[cols_to_fill] = df_merged[cols_to_fill].bfill()
+    print(df_merged.head())
     
     return df_merged

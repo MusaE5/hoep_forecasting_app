@@ -5,11 +5,10 @@ from datetime import timedelta
 import joblib
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-
 from src.quantile_model import quantile_loss, load_quantile_models
 
 
-# --- Loaders ---
+
 def load_scaler():
     return joblib.load("models/quantile_feature_scaler.pkl")
 
