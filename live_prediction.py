@@ -6,7 +6,7 @@ import joblib
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from src.quantile_model import quantile_loss, load_quantile_models
-
+from src.live_fetch import fetch_realtime_totals, fetch_current_weather, fetch_and_store, append_to_buffer, get_ontario_zonal_average
 
 
 def load_scaler():
@@ -24,7 +24,7 @@ def load_buffer(buffer_file):
     ])
 
 
-# --- Feature Engineering ---
+# Live feature engineering from buffer csv
 def calculate_features(buffer_df):
     """Creates features for t+1 hour ahead forecast"""
     hour_col = buffer_df['hour']
@@ -105,8 +105,10 @@ def process_new_data(features_dict):
     return scaler.transform(features_df)
 
 
-# --- Execution ---
+
 if __name__ == "__main__":
+
+    fetch_and_store()
     buffer_file = "data/hoep_buffer.csv"
     df = load_buffer(buffer_file)
     features_dict = calculate_features(df)
@@ -123,4 +125,3 @@ if __name__ == "__main__":
     print(f"10th percentile: ${predictions['q10']:.2f}")
     print(f"50th percentile: ${predictions['q50']:.2f}")
     print(f"90th percentile: ${predictions['q90']:.2f}")
-    print(predictions)
