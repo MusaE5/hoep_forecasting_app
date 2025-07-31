@@ -165,7 +165,7 @@ if __name__ == "__main__":
     }
 
     log_df = pd.concat([log_df, pd.DataFrame([new_entry])], ignore_index=True)
-    
+
     numeric_cols = ['pred_q10', 'pred_q50', 'pred_q90']
     log_df[numeric_cols] = log_df[numeric_cols].round(2)
 
