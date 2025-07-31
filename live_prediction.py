@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import os
-from datetime import timedelta
+from datetime import timedelta, datetime
 import joblib
 import tensorflow as tf
 from tensorflow.keras.models import load_model
@@ -108,7 +108,10 @@ def process_new_data(features_dict):
 
 if __name__ == "__main__":
 
-    fetch_and_store()
+    feat = fetch_and_store()
+    if feat is not None:
+        actual_hoep = feat['zonal_price']
+
     buffer_file = "data/hoep_buffer.csv"
     df = load_buffer(buffer_file)
     features_dict = calculate_features(df)
@@ -125,3 +128,47 @@ if __name__ == "__main__":
     print(f"10th percentile: ${predictions['q10']:.2f}")
     print(f"50th percentile: ${predictions['q50']:.2f}")
     print(f"90th percentile: ${predictions['q90']:.2f}")
+
+
+    # Step 3: Update predictions_log.csv
+    log_path = "data/predictions_log.csv"
+
+    if os.path.exists(log_path):
+        log_df = pd.read_csv(log_path)
+
+        if len(log_df) == 3:
+            # Inject actual HOEP into the middle row
+            if pd.isna(log_df.loc[1, 'actual_hoep']):
+                log_df.loc[1, 'actual_hoep'] = actual_hoep
+                print(f"✅ Injected actual HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
+            else:
+                print("⚠️ Middle row already has actual HOEP — skipping injection.")
+
+            # Drop the oldest row (index 0)
+            log_df = log_df.iloc[1:]
+
+    else:
+        log_df = pd.DataFrame(columns=[
+            "predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"
+        ])
+        print("📂 Created new predictions_log.csv")
+
+    # Step 4: Append new prediction row
+    predicted_for = pd.to_datetime(df['timestamp'].iloc[-1]).ceil('h') + timedelta(hours=1)
+    new_entry = {
+        "predicted_for_hour": predicted_for.isoformat(),
+        "pred_q10": predictions['q10'],
+        "pred_q50": predictions['q50'],
+        "pred_q90": predictions['q90'],
+        "timestamp_predicted_at": datetime.now().isoformat(timespec='seconds'),
+        "actual_hoep": None
+    }
+
+    log_df = pd.concat([log_df, pd.DataFrame([new_entry])], ignore_index=True)
+    
+    numeric_cols = ['pred_q10', 'pred_q50', 'pred_q90']
+    log_df[numeric_cols] = log_df[numeric_cols].round(2)
+
+    log_df.to_csv(log_path, index=False)
+    print("✅ Appended new prediction row.")
+   
