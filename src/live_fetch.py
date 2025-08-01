@@ -98,43 +98,36 @@ def get_ontario_zonal_average():
         print(f"Zonal Price Error: {e}")
         return None, None
 
-def create_buffer_if_needed():
-    """Create buffer CSV file if it doesn't exist"""
-    if not os.path.exists(BUFFER_FILE):
-        # Create directory if needed
-        os.makedirs(os.path.dirname(BUFFER_FILE), exist_ok=True)
-        
-        # Create empty CSV with headers
-        df = pd.DataFrame(columns=[
-            'timestamp', 'hour', 'interval', 'demand_MW', 
-            'or10_sync_MW', 'or10_non_MW', 'or30_MW',
-            'temp_C', 'humidity_%', 'wind_mps', 'zonal_price'
-        ])
-        df.to_csv(BUFFER_FILE, index=False)
-        print(f"Created new buffer file: {BUFFER_FILE}")
 
 def append_to_buffer(data_dict):
-    """Append new data to the buffer CSV"""
+    """Append new data to the buffer CSV and keep only latest 24 rows (duplicates allowed)"""
     try:
         # Load existing buffer
         if os.path.exists(BUFFER_FILE):
             buffer_df = pd.read_csv(BUFFER_FILE)
         else:
-            create_buffer_if_needed()
-            buffer_df = pd.read_csv(BUFFER_FILE)
-        
+            print("⚠️ No existing buffer found — creating new one")
+            buffer_df = pd.DataFrame()
+
         # Create new row
         new_row = pd.DataFrame([data_dict])
-        
+
         # Append to buffer
         updated_buffer = pd.concat([buffer_df, new_row], ignore_index=True)
-        
+
+        # Ensure timestamp is datetime so we can sort
+        updated_buffer['timestamp'] = pd.to_datetime(updated_buffer['timestamp'], errors='coerce')
+        updated_buffer = updated_buffer.sort_values('timestamp')
+
+        # Always keep only the last 24 rows
+        updated_buffer = updated_buffer.tail(24)
+
         # Save back to CSV
         updated_buffer.to_csv(BUFFER_FILE, index=False)
-        
+
         print(f"✅ Data appended to buffer. Total rows: {len(updated_buffer)}")
         return True
-        
+
     except Exception as e:
         print(f"❌ Error appending to buffer: {e}")
         return False
@@ -142,7 +135,7 @@ def append_to_buffer(data_dict):
 def fetch_and_store():
     """Main function to fetch live data and store in buffer"""
     try:
-        print(f"\n🔄 Fetching live data at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print(f"\n Fetching live data at {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
         
         # Fetch all data
         feat = fetch_realtime_totals()
@@ -166,47 +159,23 @@ def fetch_and_store():
         success = append_to_buffer(feat)
         
         if success:
-            print("📊 Data successfully stored in buffer")
+            return feat
         else:
-            print("⚠️  Failed to store data in buffer")
+            print("  Failed to store data in buffer")
             
     except Exception as e:
-        print(f"❌ Error in fetch_and_store: {e}")
+        print(f" Error in fetch_and_store: {e}")
 
-def show_buffer_status():
-    """Show current buffer status"""
-    try:
-        if os.path.exists(BUFFER_FILE):
-            buffer_df = pd.read_csv(BUFFER_FILE)
-            print(f"\n📈 Buffer Status:")
-            print(f"   Total rows: {len(buffer_df)}")
-            print(f"   Hours of data: {len(buffer_df)}")
-            print(f"   Ready for lag_24?: {'✅ Yes' if len(buffer_df) >= 24 else f'❌ No (need {24 - len(buffer_df)} more)'}")
-            
-            if len(buffer_df) > 0:
-                latest = buffer_df.iloc[-1]
-                print(f"   Latest: {latest['timestamp']} | HOEP: {latest['zonal_price']} | Demand: {latest['demand_MW']}")
-        else:
-            print("📈 Buffer Status: No buffer file exists yet")
-    except Exception as e:
-        print(f"❌ Error checking buffer status: {e}")
 
-# Main execution
 if __name__ == "__main__":
-    print("🚀 HOEP Live Data Collector Starting...")
-    print("⏰ Scheduled to run every hour at :56")
-    
-    # Create buffer if needed
-    create_buffer_if_needed()
-    
-    # Show current status
-    show_buffer_status()
+ 
+    print(" Scheduled to run every hour at :56")
     
     # Option to run immediately for testing
     user_input = input("\n🔍 Run immediately for testing? (y/n): ").lower().strip()
     if user_input == 'y':
         fetch_and_store()
-        show_buffer_status()
+        
     
     # Schedule the job
     schedule.every().hour.at(":56").do(fetch_and_store)
@@ -218,7 +187,7 @@ if __name__ == "__main__":
     try:
         while True:
             schedule.run_pending()
-            time.sleep(60)  # Check every minute
+            time.sleep(58)  # Check every minute
     except KeyboardInterrupt:
-        print("\n👋 Scheduler stopped by user")
-        show_buffer_status()  # Show final status
+        print("\n Scheduler stopped by user")
+        

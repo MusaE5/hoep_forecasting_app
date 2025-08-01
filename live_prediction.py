@@ -37,7 +37,7 @@ def calculate_features(buffer_df):
 
     df = buffer_df.copy()
     timestamp = pd.to_datetime(df['timestamp'])
-    target_timestamp = timestamp.dt.ceil('H') + pd.Timedelta(hours=1)
+    target_timestamp = timestamp.dt.ceil('h') + pd.Timedelta(hours=1)
     df['timestamp'] = target_timestamp
 
     df['is_weekend'] = (df['timestamp'].dt.weekday >= 5).astype(int)
