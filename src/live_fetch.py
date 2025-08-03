@@ -124,6 +124,7 @@ def append_to_buffer(data_dict):
 
         # Save back to CSV
         updated_buffer.to_csv(BUFFER_FILE, index=False)
+       
 
         print(f"✅ Data appended to buffer. Total rows: {len(updated_buffer)}")
         return True
@@ -149,7 +150,8 @@ def fetch_and_store():
             feat["zonal_price"] = None  # Store None if failed
         
         # Add timestamp
-        feat["timestamp"] = datetime.now().isoformat(timespec="seconds")
+        feat["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
 
         print("── LIVE FEATURE SNAPSHOT ──")
         for k, v in feat.items():
