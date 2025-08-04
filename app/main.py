@@ -89,7 +89,6 @@ st.markdown("---")
 # ----------------------------------------------------------------------
 st.markdown("### 📊 Latest Forecast")
 
-# -------  TEMP placeholders  ------------------------------------------
 # Conig variables for data insertion
 df = pd.read_csv('data/predictions_log.csv')
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
@@ -190,7 +189,7 @@ with cta2:
     st.markdown("#### 🧪 Manual Prediction")
     st.markdown("Trigger an on-demand forecast for the upcoming hour using the latest market + weather data.")
     if st.button("Predict Now"):
-        st.switch_page("pages/predict.py")
+        st.switch_page("pages/manual_prediction.py")
 
 with cta3:
     st.markdown("#### 📊 Model Metrics")
