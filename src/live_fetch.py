@@ -169,27 +169,26 @@ def fetch_and_store():
         print(f" Error in fetch_and_store: {e}")
 
 
-if __name__ == "__main__":
- 
-    print(" Scheduled to run every hour at :56")
-    
-    # Option to run immediately for testing
-    user_input = input("\n🔍 Run immediately for testing? (y/n): ").lower().strip()
-    if user_input == 'y':
-        fetch_and_store()
-        
-    
-    # Schedule the job
-    schedule.every().hour.at(":56").do(fetch_and_store)
-    
-    print(f"\n⏰ Scheduler started. Next run at next :56 minute mark.")
-    print("   Press Ctrl+C to stop")
-    
-    # Run scheduler
+def fetch_live_features_only():
+    """
+    Fetches live features (market + weather + zonal price) without modifying any buffer files.
+    This is safe for manual prediction.
+    """
     try:
-        while True:
-            schedule.run_pending()
-            time.sleep(58)  # Check every minute
-    except KeyboardInterrupt:
-        print("\n Scheduler stopped by user")
-        
+
+        feat = fetch_realtime_totals()
+        feat.update(fetch_current_weather())
+        zonal_price, _ = get_ontario_zonal_average()
+
+        feat["zonal_price"] = zonal_price if zonal_price is not None else None
+        feat["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        print("── MANUAL LIVE FEATURE SNAPSHOT ──")
+        for k, v in feat.items():
+            print(f"{k:<15}: {v}")
+
+        return feat
+
+    except Exception as e:
+        print(f"❌ Error in fetch_live_features_only: {e}")
+        return None

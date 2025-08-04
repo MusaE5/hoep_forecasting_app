@@ -10,6 +10,7 @@ import os
 # Add project root (2 levels up from /pages/)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from src.live_engineering import load_scaler, load_buffer, calculate_features, process_new_data
+from src.live_fetch import fetch_live_features_only
 from src.quantile_model import quantile_loss, load_quantile_models
 
 # ──────────────────────────────────────
@@ -39,19 +40,26 @@ with st.container():
     if st.button("🔮 Predict Now"):
         with st.spinner("Fetching live data and generating prediction..."):
             data_path = 'data/hoep_buffer.csv'
-            df = load_buffer(data_path)
+            df = load_buffer(data_path).tail(23)
+
+            live_feat = fetch_live_features_only()
+            if live_feat is None:
+                st.error("❌ Failed to fetch live data. Try again later.")
+                st.stop()
+
+            df = pd.concat([df, pd.DataFrame([live_feat])], ignore_index=True)
+
             features_dict = calculate_features(df)
             scaled_features = process_new_data(features_dict)
 
-
             models = load_quantile_models()
             predictions = {
-            'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
-            'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
-            'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
+                'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
+                'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
+                'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
             }
-            pass
 
+            st.success("✅ Prediction complete!")
 # ──────────────────────────────────────
 # 📊 Section 3: Display Results (Optional)
 # ──────────────────────────────────────

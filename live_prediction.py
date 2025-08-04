@@ -21,28 +21,12 @@ if __name__ == "__main__":
     df = load_buffer(buffer_file)
     features_dict = calculate_features(df)
     scaled_features = process_new_data(features_dict)
-    # ───────────────────────────────────────────────
-    # ✅ Sanity check: Validate model input features
-    # ───────────────────────────────────────────────
-    expected_num_features = 31  # Adjust if your model uses a different number
-    expected_shape = (1, expected_num_features)
 
-    print(f"📐 Scaled features shape: {scaled_features.shape}")
-    print("🔍 Any NaNs?", np.isnan(scaled_features).any())
-    print("🔍 Any Infs?", np.isinf(scaled_features).any())
-
-    if scaled_features.shape != expected_shape:
-        print(f"❌ Feature shape mismatch! Expected {expected_shape}, got {scaled_features.shape}")
-        raise ValueError("Model input shape is incorrect.")
-
-    # Optional: print the feature vector if debugging further
+    # Print the feature vector for debugging 
     print("🧾 Sample features row:", scaled_features[0])
 
 
     models = load_quantile_models()
-    
-
-
     predictions = {
         'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
         'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
