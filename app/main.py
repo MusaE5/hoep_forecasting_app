@@ -177,7 +177,7 @@ st.markdown("---")
 # ----------------------------------------------------------------------
 st.markdown("### 🔍 Quick Actions")
 
-cta1, cta2, cta3 = st.columns(3)
+cta1, cta2 = st.columns(2)
 
 with cta1:
     st.markdown("#### 📈 Historical Dashboard")
@@ -190,12 +190,6 @@ with cta2:
     st.markdown("Trigger an on-demand forecast for the upcoming hour using the latest market + weather data.")
     if st.button("Predict Now"):
         st.switch_page("pages/manual_prediction.py")
-
-with cta3:
-    st.markdown("#### 📊 Model Metrics")
-    st.markdown("Inspect accuracy, residuals, and how we stack up against IESO Hour-2 benchmarks.")
-    if st.button("View Metrics"):
-        st.switch_page("pages/metrics.py")
 
 st.markdown("---")
 
