@@ -12,6 +12,7 @@ st.set_page_config(
     page_title="HOEP Forecasting App",
     page_icon="⚡",
     layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # ----------------------------------------------------------------------
@@ -21,30 +22,52 @@ st.markdown(
     """
     <style>
         :root {
-            --bg: #000000;
-            --fg: #ffffff;
-            --card: #1a1a1a;
+            --bg: #0f0f13;
+            --fg: #f0f0f0;
+            --card: #1e1e2a;
             --accent1: #ffd700;      /* gold */
             --accent2: #4ecdc4;      /* teal */
+            --accent3: #ff6b6b;     /* coral */
+            --text-muted: #a0a0a0;
         }
 
-        .stApp { background: var(--bg); color: var(--fg); }
+        .stApp { 
+            background: linear-gradient(135deg, var(--bg) 0%, #1a1a24 100%);
+            color: var(--fg);
+        }
 
-        h1, h2, h3, h4 { color: var(--fg); }
+        h1, h2, h3, h4 { 
+            color: var(--fg);
+            letter-spacing: -0.5px;
+        }
+
+        /* Main header gradient */
+        h1 {
+            background: linear-gradient(90deg, var(--accent1) 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+        }
 
         /* Card container (metric) */
         [data-testid="metric-container"]{
             background: var(--card);
-            padding: 1rem 1.25rem;
-            border-radius: 10px;
-            border: 1px solid #333;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.6);
+            padding: 1.5rem 1.75rem;
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
         }
 
-        /* Bigger label inside metric (Last / Next Prediction) */
+        [data-testid="metric-container"]:hover {
+            transform: translateY(-2px);
+        }
+
+        /* Bigger label inside metric */
         [data-testid="metric-container"] > label {
             font-size: 1.15rem;
             font-weight: 600;
+            color: var(--text-muted) !important;
         }
 
         /* Make the delta pill + timer larger */
@@ -54,11 +77,87 @@ st.markdown(
             font-weight: 600;
         }
 
-        /* Auto-refresh fade indicator */
-        .refresh-fade {
-            animation: fade 30s infinite;
+        /* Divider styling */
+        hr {
+            border: none;
+            height: 1px;
+            background: linear-gradient(90deg, transparent 0%, rgba(255,215,0,0.3) 50%, transparent 100%);
+            margin: 2.5rem 0;
         }
-        @keyframes fade { 0%,95%{opacity:1;} 100%{opacity:0.7;} }
+
+        /* Button styling */
+        .stButton button {
+            background: linear-gradient(90deg, var(--accent1) 0%, var(--accent3) 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .stButton button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        /* Chart styling */
+        .stLineChart {
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        /* Auto-refresh indicator */
+        .refresh-indicator {
+            display: inline-block;
+            background: rgba(78, 205, 196, 0.2);
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            margin-left: 0.5rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Custom card styling */
+        .custom-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            height: 100%;
+            border-left: 4px solid var(--accent1);
+        }
+
+        /* Footer styling */
+        .footer {
+            font-size: 0.85rem;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 3rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Forecast section specific */
+        .forecast-container {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .forecast-container::after {
+            content: "";
+            position: absolute;
+            bottom: -15px;
+            left: 5%;
+            width: 90%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,215,0,0.5), transparent);
+        }
     </style>
 
     <script>
@@ -70,26 +169,25 @@ st.markdown(
 )
 
 # ----------------------------------------------------------------------
-# 3) Header
+# 3) Header with animated gradient
 # ----------------------------------------------------------------------
 st.markdown(
-    "<h1 style='text-align:center'>⚡ Ontario Electricity Price Forecaster</h1>",
-    unsafe_allow_html=True,
-)
-st.markdown(
-    "<h3 style='text-align:center; font-weight:normal'>"
-    "Live HOEP predictions"
-    "</h3>",
+    """
+    <div style='text-align:center; margin-bottom:0.5rem;'>
+        <h1 style='margin-bottom:0;'>Ontario Electricity Price Forecaster</h1>
+        <div style='font-size:1.1rem; color:var(--text-muted);'>
+            Live HOEP predictions <span class='refresh-indicator'>Live</span>
+        </div>
+    </div>
+    """,
     unsafe_allow_html=True,
 )
 st.markdown("---")
 
 # ----------------------------------------------------------------------
-# 4) Metrics  (Next-on-left, Last-on-right)
+# 4) Super-sized Forecast Display
 # ----------------------------------------------------------------------
-st.markdown("### 📊 Latest Forecast")
-
-# Conig variables for data insertion
+# Config variables for data insertion
 df = pd.read_csv('data/predictions_log.csv')
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
@@ -102,8 +200,6 @@ latest_pred_q10 = latest_row['pred_q10']
 latest_pred_q50 = latest_row['pred_q50']
 latest_pred_q90 = latest_row['pred_q90']
 
-first_actual_hoep = df.loc[0, 'actual_hoep'] if pd.notna(df.loc[0, 'actual_hoep']) else None
-
 # Get current time
 now = datetime.now()
 current_hour = now.replace(minute=0, second=0, microsecond=0)
@@ -113,7 +209,7 @@ next_prediction_time = current_hour.replace(minute=55)
 if now.minute >= 55:
     next_prediction_time += timedelta(hours=1)
 
-# Forecast window is 2 hours **after the current hour**, not after the prediction time
+# Forecast window is 2 hours after the current hour
 target_start = (next_prediction_time.replace(minute=0) + timedelta(hours=2)).strftime('%H:%M')
 target_end = (next_prediction_time.replace(minute=0) + timedelta(hours=3) - timedelta(minutes=1)).strftime('%H:%M')
 target_hour_label = f"{target_start}–{target_end} EST"
@@ -122,73 +218,139 @@ target_hour_label = f"{target_start}–{target_end} EST"
 delta = next_prediction_time - now
 countdown = f"{delta.seconds // 60}m {delta.seconds % 60}s"
 
-# Create layout
-col_next, col_last = st.columns(2)
+# Main forecast display
+st.markdown("""
+    <div style='text-align:center; margin-bottom:1.5rem;'>
+        <h2 style='margin-bottom:0.5rem;'>⚡ Live Price Forecast</h2>
+        <div style='font-size:1.1rem; color:var(--text-muted);'>
+            Current prediction with 80% confidence range
+        </div>
+    </div>
+""", unsafe_allow_html=True)
 
-with col_next:
+
+# Create layout with 3 columns (wider middle column)
+col_timer, col_main, col_range = st.columns([1.2, 1.5, 1.2], gap="large")
+
+with col_timer:
     st.markdown(
         f"""
-        <div style="
-            background:#1a1a1a; border:1px solid #333; border-radius:12px;
-            padding:1.5rem 1.8rem; height:100%;">
-          <div style="font-size:1.4rem; font-weight:700; line-height:1.2;">⏳ Next Prediction</div>
-          <div style="font-size:1.2rem; color:#ccc; margin-top:0.4rem;">
-            Predicting for:
-          </div>
-          <div style="font-size:2.2rem; font-weight:800; margin:0.2rem 0 0.2rem 0;">
-            {target_hour_label}
-          </div>
-          <div style="font-size:1.2rem; color:#aaa;">
-            in {countdown}
-          </div>
+        <div class="custom-card" style='height:100%; display:flex; flex-direction:column; justify-content:center;'>
+            <div style='font-size:1.4rem; font-weight:700; color:var(--accent2); margin-bottom:1.5rem;'>
+                ⏳ Next Prediction In
+            </div>
+            <div style='font-size:3.5rem; font-weight:800; color:var(--accent1); line-height:1; margin-bottom:1rem;'>
+                {countdown}
+            </div>
+            <div style='font-size:1.2rem; color:var(--text-muted); margin-top:auto;'>
+                For hour starting:<br>
+                <span style='font-size:1.4rem; color:var(--fg);'>
+                {target_hour_label}
+                </span>
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-with col_last:
+with col_main:
     st.markdown(
         f"""
-        <div style="
-            background:#1a1a1a; border:1px solid #333; border-radius:12px;
-            padding:1.5rem 1.8rem; height:100%;">
-          <div style="font-size:1.4rem; font-weight:700; line-height:1.2;">🕒 Most Recent Prediction</div>
-          <div style="font-size:2.6rem; font-weight:800; margin:0.3rem 0 0.2rem 0;">
-            ${latest_pred_q50:.2f}/MWh
-          </div>
-          <div style="font-size:1.15rem; color:#ccc; margin-bottom:0.8rem;">
-            for hour {latest_predicted_hour.strftime('%H:%M')}–{(latest_predicted_hour + pd.Timedelta(hours=1) - pd.Timedelta(minutes=1)).strftime('%H:%M')} EST
-          </div>
-          <div style="
-               display:inline-block; padding:0.35rem 0.9rem;
-               background:#0b6623; color:#fff; font-weight:600;
-               border-radius:999px; font-size:1.05rem;">
-               Predicted range: ${latest_pred_q10:.2f}–${latest_pred_q90:.2f}
-          </div>
+        <div class="custom-card" style='height:100%; text-align:center; display:flex; flex-direction:column; justify-content:center;'>
+            <div style='font-size:1.2rem; color:var(--text-muted); margin-bottom:0.5rem;'>
+                Current Prediction
+            </div>
+            <div style='font-size:4.5rem; font-weight:800; color:var(--accent1); line-height:1; margin:0.5rem 0;'>
+                ${latest_pred_q50:.2f}
+            </div>
+            <div style='font-size:1.1rem; color:var(--text-muted);'>
+                per MWh<br>
+                {latest_predicted_hour.strftime('%H:%M')}–{(latest_predicted_hour + pd.Timedelta(hours=1) - pd.Timedelta(minutes=1)).strftime('%H:%M')} EST
+            </div>
         </div>
         """,
         unsafe_allow_html=True,
     )
 
-st.markdown("---")
+with col_range:
+    # Using Streamlit native components instead of HTML
+    st.markdown(
+        """
+        <div class="custom-card">
+            <div style='font-size:1.4rem; font-weight:700; color:var(--accent2); margin-bottom:1.5rem; text-align:center;'>
+                📊 Confidence Range
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # High estimate
+    st.markdown(
+        f"""
+        <div style='background:rgba(255,107,107,0.1); border-radius:8px; padding:1rem; text-align:center; margin-bottom:1rem;'>
+            <div style='font-size:1rem; color:var(--text-muted);'>High (90th %ile)</div>
+            <div style='font-size:1.8rem; font-weight:700; color:var(--accent3);'>${latest_pred_q90:.2f}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Median
+    st.markdown(
+        f"""
+        <div style='background:rgba(255,215,0,0.1); border-radius:8px; padding:1rem; text-align:center; margin-bottom:1rem;'>
+            <div style='font-size:1rem; color:var(--text-muted);'>Median</div>
+            <div style='font-size:1.8rem; font-weight:700; color:var(--accent1);'>${latest_pred_q50:.2f}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    # Low estimate
+    st.markdown(
+        f"""
+        <div style='background:rgba(78,205,196,0.1); border-radius:8px; padding:1rem; text-align:center;'>
+            <div style='font-size:1rem; color:var(--text-muted);'>Low (10th %ile)</div>
+            <div style='font-size:1.8rem; font-weight:700; color:var(--accent2);'>${latest_pred_q10:.2f}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+
 
 # ----------------------------------------------------------------------
-# 5) Three CTA panels with descriptions
+# 5) Quick Actions
 # ----------------------------------------------------------------------
 st.markdown("### 🔍 Quick Actions")
 
-cta1, cta2 = st.columns(2)
+cta1, cta2 = st.columns(2, gap="large")
 
 with cta1:
-    st.markdown("#### 📈 Historical Dashboard")
-    st.markdown("See quantile predictions vs. actual prices with 80 % confidence bands for the last 24 h.")
-    if st.button("Open Dashboard"):
+    st.markdown(
+        """
+        <div class="custom-card">
+            <h4 style="color:var(--accent2); margin-top:0;">📈 Historical Dashboard</h4>
+            <p style="color:var(--text-muted);">See quantile predictions vs. actual prices with 80% confidence bands for the last 24 hours.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Open Dashboard", key="dashboard"):
         st.switch_page("pages/dashboard.py")
 
 with cta2:
-    st.markdown("#### 🧪 Manual Prediction")
-    st.markdown("Trigger an on-demand forecast for the upcoming hour using the latest market + weather data.")
-    if st.button("Predict Now"):
+    st.markdown(
+        """
+        <div class="custom-card">
+            <h4 style="color:var(--accent2); margin-top:0;">🧪 Manual Prediction</h4>
+            <p style="color:var(--text-muted);">Trigger an on-demand forecast for the upcoming hour using the latest market + weather data.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+    if st.button("Predict Now", key="manual"):
         st.switch_page("pages/manual_prediction.py")
 
 st.markdown("---")
@@ -212,20 +374,23 @@ hoep_df = hoep_df.tail(24)
 st.markdown("### 📈 Recent HOEP Trends")
 st.line_chart(
     hoep_df.set_index("timestamp")[["zonal_price"]],
-    color=['#ffd700'],
-    height=300,
+    color='#FFD700',
+    height=400,
+    use_container_width=True
 )
 
 last_refresh = hoep_df["timestamp"].max().strftime('%Y-%m-%d %H:%M EST')
-st.markdown(f"*HOEP data updates hourly from IESO — last refresh: {last_refresh}*")
+st.markdown(f"<div style='color:var(--text-muted); font-size:0.9rem;'>HOEP data updates hourly from IESO — last refresh: {last_refresh}</div>", unsafe_allow_html=True)
 
 # ----------------------------------------------------------------------
 # 7) Footer
 # ----------------------------------------------------------------------
 st.markdown("---")
 st.markdown(
-    "<div style='text-align:center; font-size:0.9rem;'>"
-    "Built with Streamlit • Data: IESO • Auto-updates every hour"
-    "</div>",
+    """
+    <div class="footer">
+        Built with <span style="color:var(--accent3);">♥</span> using Streamlit • Data: IESO & Canadian Government• Auto-updates every hour
+    </div>
+    """,
     unsafe_allow_html=True,
 )
