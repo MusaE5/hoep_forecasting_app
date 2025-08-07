@@ -226,7 +226,7 @@ st.markdown("""
 
 st.markdown("---")
 
-# First card: Current Prediction with confidence range (now transparent)
+# Current Prediction with simplified range
 st.markdown(
     f"""
     <div style='margin-bottom:1.5rem; padding:1.5rem;'>  
@@ -240,19 +240,19 @@ st.markdown(
             <div style='font-size:1.2rem; color:#a0a0a0; margin-bottom:1.5rem;'>
                 CAD/MWh
             </div>
-            <div style='display:flex; justify-content:space-between; align-items:center; padding:1.5rem;'>
-                <div style='flex:1; text-align:center;'>
-                    <div style='font-size:0.9rem; color:#a0a0a0; margin-bottom:0.5rem;'>Low (10th %ile)</div>
-                    <div style='font-size:2rem; font-weight:700; color:#4cd137;'>${latest_pred_q10:.2f}</div>
-                </div>
-                <div style='flex:1; text-align:center; border-left:1px solid rgba(255,255,255,0.1); border-right:1px solid rgba(255,255,255,0.1);'>
-                    <div style='font-size:0.9rem; color:#a0a0a0; margin-bottom:0.5rem;'>Median</div>
-                    <div style='font-size:2rem; font-weight:700; color:#ffd700;'>${latest_pred_q50:.2f}</div>
-                </div>
-                <div style='flex:1; text-align:center;'>
-                    <div style='font-size:0.9rem; color:#a0a0a0; margin-bottom:0.5rem;'>High (90th %ile)</div>
-                    <div style='font-size:2rem; font-weight:700; color:#ff6b6b;'>${latest_pred_q90:.2f}</div>
-                </div>
+            <div style='
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            '>
+                <div style='color:#4cd137; font-size:1.5rem;'>${latest_pred_q10:.2f}</div>
+                <div style='color:#a0a0a0; font-size:1rem;'>to</div>
+                <div style='color:#ff6b6b; font-size:1.5rem;'>${latest_pred_q90:.2f}</div>
+            </div>
+            <div style='color:#a0a0a0; font-size:0.9rem;'>
+                80% confidence range (10th to 90th percentile)
             </div>
         </div>
     </div>
