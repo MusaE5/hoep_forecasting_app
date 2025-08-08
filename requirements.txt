@@ -1,10 +1,12 @@
 streamlit
 pandas
-numpy
+numpy<2.0
 scikit-learn
 joblib
 plotly
 requests
 matplotlib
-tensorflow
-keras
+
+tensorflow==2.15.0.post1
+keras==2.15.0
+ml-dtypes<0.4.0
