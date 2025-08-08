@@ -2,7 +2,7 @@ import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
 import os
-import pytz
+from zoneinfo import ZoneInfo
 
 # Page configuration
 st.set_page_config(
