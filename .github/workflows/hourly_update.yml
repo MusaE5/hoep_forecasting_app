@@ -1,9 +1,9 @@
 name: Hourly HOEP Update
 
-on:
-  schedule:
-    - cron: "55 * * * *"   # Run at the 55th minute of every hour (UTC → matches EST/EDT minute 55)
-  workflow_dispatch: {}     # Allow manual run from GitHub Actions tab
+#on:
+ # schedule:
+   # - cron: "55 * * * *"   # Run at the 55th minute of every hour (UTC → matches EST/EDT minute 55)
+ # workflow_dispatch: {}     # Allow manual run from GitHub Actions tab
 
 jobs:
   run-hourly:
