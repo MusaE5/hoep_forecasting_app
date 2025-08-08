@@ -8,7 +8,7 @@ from datetime import datetime
 # Page Config
 # ──────────────────────────────────────
 st.set_page_config(page_title="Quantile Dashboard", layout="wide")
-st.title("📈 24-Hour Forecast vs. Actual HOEP")
+st.title(" 24-Hour Forecast vs. Actual HOEP")
 
 # ──────────────────────────────────────
 # Load Data
@@ -97,7 +97,7 @@ st.plotly_chart(fig, use_container_width=True)
 # ──────────────────────────────────────
 # Performance Metrics
 # ──────────────────────────────────────
-st.markdown("### 🧪 Model Performance Metrics")
+st.markdown("###  Model Performance Metrics")
 
 # Quantile Coverage
 coverage = ((df['actual_hoep'] >= df['pred_q10']) & (df['actual_hoep'] <= df['pred_q90'])).mean()
