@@ -221,11 +221,9 @@ with qa2:
 st.markdown("---")
 # Historical chart
 BUFFER_PATH = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/hoep_buffer.csv"
-if os.path.exists(BUFFER_PATH):
-    hoep_df = pd.read_csv(BUFFER_PATH)
-    hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
-else:
-    hoep_df = pd.DataFrame(columns=["timestamp", "zonal_price"])
+hoep_df = pd.read_csv(BUFFER_PATH)
+hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
+
 
 hoep_df = hoep_df.tail(24)
 st.markdown("### Recent Zonal Price Trends (CAD/MWH)")
