@@ -112,8 +112,8 @@ with st.container():
 
     if st.button("Predict Now"):
         with st.spinner("Fetching live data and generating prediction..."):
-            data_path = 'data/hoep_buffer.csv'
-            df = load_buffer(data_path).tail(23)
+            data_path = 'https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/hoep_buffer.csv'
+            df = pd.read_csv(data_path).tail(23)
 
             live_feat = fetch_live_features_only()
             if live_feat is None:
