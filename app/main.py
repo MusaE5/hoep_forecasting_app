@@ -65,7 +65,7 @@ h1, h2, h3 {
 df = pd.read_csv('data/predictions_log.csv')
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
-latest_row = df.sort_values('timestamp_predicted_at', ascending=False).iloc[0]
+latest_row = df['timestamp_predicted_at'].iloc[-1]
 
 latest_predicted_hour = latest_row['predicted_for_hour']
 latest_pred_q10 = latest_row['pred_q10']
