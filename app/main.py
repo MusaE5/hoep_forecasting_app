@@ -74,7 +74,7 @@ latest_pred_q10 = latest_row['pred_q10']
 latest_pred_q50 = latest_row['pred_q50']
 latest_pred_q90 = latest_row['pred_q90']
 
-toronto_tz = pytz.timezone('America/Toronto')
+toronto_tz = ZoneInfo('America/Toronto')
 now = datetime.now(toronto_tz)
 
 current_hour = now.replace(minute=0, second=0, microsecond=0)
