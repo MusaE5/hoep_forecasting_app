@@ -228,7 +228,7 @@ else:
     hoep_df = pd.DataFrame(columns=["timestamp", "zonal_price"])
 
 hoep_df = hoep_df.tail(24)
-st.markdown("### Recent HOEP Trends")
+st.markdown("### Recent Zonal Price Trends (CAD/MWH)")
 import plotly.graph_objects as go
 fig = go.Figure()
 fig.add_trace(go.Scatter(
