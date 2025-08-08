@@ -1,7 +1,7 @@
 name: Hourly HOEP Update
 on:
   schedule:
-    - cron: "45 * * * *"   # Runs ~:40 Toronto time year-round
+    - cron: "42 * * * *"  
   workflow_dispatch: {}     # Allow manual run from GitHub Actions tab
 
 jobs:
