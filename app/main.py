@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import os
 
-# ========== PAGE CONFIG ==========
+# Page configuration
 st.set_page_config(
     page_title="HOEP Forecasting App",
     page_icon="⚡",
@@ -11,7 +11,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# ========== THEME & STYLING ==========
+# Theme and styling
 st.markdown("""
 <style>
 :root {
@@ -61,7 +61,7 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-# ========== LOAD DATA ==========
+# Load backend data
 df = pd.read_csv('data/predictions_log.csv')
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
@@ -80,10 +80,12 @@ if now.minute >= 55:
 
 target_start = (next_prediction_time.replace(minute=0) + timedelta(hours=2)).strftime('%H:%M')
 target_end = (next_prediction_time.replace(minute=0) + timedelta(hours=3) - timedelta(minutes=1)).strftime('%H:%M')
+
 target_hour_label = f"{target_start}–{target_end} EST"
+
 countdown = f"{(next_prediction_time - now).seconds // 60}m {(next_prediction_time - now).seconds % 60}s"
 
-# ========== TOP SECTION ==========
+
 st.markdown(f"<h1>Ontario Electricity Price Forecast</h1>", unsafe_allow_html=True)
 st.markdown(f"<p class='muted'>Last updated: {latest_row['timestamp_predicted_at'].strftime('%Y-%m-%d %H:%M:%S')}</p>", unsafe_allow_html=True)
 
@@ -128,14 +130,72 @@ with col1:
 
     st.markdown("</div>", unsafe_allow_html=True)
 
+
 with col2:
-    st.markdown("<div class='card' style='text-align:center;'>", unsafe_allow_html=True)
-    st.markdown("<h3>Next Prediction In</h3>", unsafe_allow_html=True)
-    st.markdown(f"<div class='big-number' style='color:var(--accent2);'>{countdown}</div>", unsafe_allow_html=True)
-    st.markdown(f"<p class='muted'>For hour: {target_hour_label}</p>", unsafe_allow_html=True)
+    # Card wrapper; title LEFT-aligned to match the column's content edge
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown(
+        "<h3 style='text-align:left; margin: 0 0 0.5rem 0;'>Next Prediction In</h3>",
+        unsafe_allow_html=True
+    )
+
+    countdown_target = next_prediction_time.strftime("%Y-%m-%d %H:%M:%S")
+
+    # Left-align content inside the iframe so it lines up with the rectangle above
+    st.components.v1.html(f"""
+      <style>
+        html, body {{
+          margin: 0;
+          padding: 0;
+          background: transparent;
+          font-family: "Segoe UI", Arial, sans-serif;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;    /* vertical centering within the iframe */
+          align-items: flex-start;    /* <-- LEFT align horizontally */
+          width: 100%;
+          height: 100%;
+        }}
+        .countdown {{
+          font-size: 4rem;
+          font-weight: 800;
+          line-height: 1.05;
+          color: #06D6A0;             /* accent2 */
+          text-align: left;           /* left text */
+        }}
+        .label {{
+          margin-top: 6px;            /* small gap under countdown */
+          text-align: left;
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #a0a0a0;             /* muted */
+        }}
+      </style>
+
+      <div class="countdown" id="countdown">Loading...</div>
+      <div class="label">For hour: {target_hour_label}</div>
+
+      <script>
+        var countDownDate = new Date("{countdown_target}").getTime();
+        var x = setInterval(function() {{
+          var now = new Date().getTime();
+          var distance = countDownDate - now;
+          var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          document.getElementById("countdown").textContent = minutes + "m " + seconds + "s";
+          if (distance < 0) {{
+            clearInterval(x);
+            document.getElementById("countdown").textContent = "Now";
+          }}
+        }}, 1000);
+      </script>
+    """, height=155)
+
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ========== QUICK ACTIONS ==========
+st.markdown("---")
+
+# Quick actions
 st.markdown("### Quick Actions")
 qa1, qa2 = st.columns(2)
 
@@ -155,7 +215,8 @@ with qa2:
         st.switch_page("pages/manual_prediction.py")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ========== HISTORICAL CHART ==========
+st.markdown("---")
+# Historical chart
 BUFFER_PATH = "data/hoep_buffer.csv"
 if os.path.exists(BUFFER_PATH):
     hoep_df = pd.read_csv(BUFFER_PATH)
@@ -186,6 +247,6 @@ if not hoep_df.empty:
     last_refresh = hoep_df["timestamp"].max().strftime('%Y-%m-%d %H:%M EST')
     st.markdown(f"<p class='muted'>Data updates hourly from IESO — last refresh: {last_refresh}</p>", unsafe_allow_html=True)
 
-# ========== FOOTER ==========
+# Footer
 st.markdown("<hr>", unsafe_allow_html=True)
 st.markdown("<p class='muted' style='text-align:center;'>Built with ❤️ using Streamlit • Data: IESO & Canadian Government • Auto-updates hourly</p>", unsafe_allow_html=True)
