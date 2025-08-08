@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np
-import os
 from datetime import timedelta, datetime
 import joblib
 import tensorflow as tf
@@ -18,8 +17,8 @@ if __name__ == "__main__":
     if feat is not None:
         actual_hoep = feat['zonal_price']
 
-    buffer_file = "data/hoep_buffer.csv"
-    df = load_buffer(buffer_file)
+    buffer_url = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/hoep_buffer.csv"
+    df = pd.read_csv(buffer_url)
     features_dict = calculate_features(df)
     scaled_features = process_new_data(features_dict)
 
@@ -45,28 +44,23 @@ if __name__ == "__main__":
     }
     
 
-  # Step 3: Update predictions_log.csv
-    log_path = "data/predictions_log.csv"
+    log_url = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/predictions_log.csv"
+    log_df = pd.read_csv(log_url)
 
-    if os.path.exists(log_path):
-        log_df = pd.read_csv(log_path)
+    
 
-        if len(log_df) == 3:
+    if len(log_df) == 3:
             # Inject actual HOEP into the middle row
-            if pd.isna(log_df.loc[1, 'actual_hoep']):
-                log_df.loc[1, 'actual_hoep'] = actual_hoep
-                print(f"✅ Injected actual HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
-            else:
-                print("Middle row already has actual HOEP — skipping injection.")
+        if pd.isna(log_df.loc[1, 'actual_hoep']):
+            log_df.loc[1, 'actual_hoep'] = actual_hoep
+            print(f"✅ Injected actual HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
+        else:
+            print("Middle row already has actual HOEP — skipping injection.")
 
-            # Drop the oldest row (index 0)
-            log_df = log_df.iloc[1:]
+        # Drop the oldest row (index 0)
+        log_df = log_df.iloc[1:]
 
-    else:
-        log_df = pd.DataFrame(columns=[
-            "predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"
-        ])
-        print("Created new predictions_log.csv")
+ 
 
     # Step 4: Append new prediction row
     log_df = pd.concat([log_df, pd.DataFrame([new_entry])], ignore_index=True)
@@ -78,21 +72,13 @@ if __name__ == "__main__":
     print("✅Appended new prediction row.")
    
 
-    # ────────────────────────────────────────────────
-    # 🔁 Maintain 24-row rolling chart buffer (no actual HOEP here)
-    # ────────────────────────────────────────────────
-
-
-    chart_buffer_path = "data/chart_buffer.csv"
-    chart_cols = ["predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"]
-
-    # Try to load chart buffer or initialize
-    if os.path.exists(chart_buffer_path):
-        chart_df = pd.read_csv(chart_buffer_path)
-    else:
-        chart_df = pd.DataFrame(columns=chart_cols)
-
     
+
+
+    chart_buffer_path = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/chart_buffer.csv"
+    chart_df = pd.read_csv(chart_buffer_url)
+    
+    chart_cols = ["predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"]
     chart_entry = {k: new_entry[k] for k in chart_cols if k in new_entry}
 
     # Round float predictions to 2 decimals before saving
@@ -112,4 +98,3 @@ if __name__ == "__main__":
 
     # Save
     chart_df.to_csv(chart_buffer_path, index=False)
-    print("📈 Updated chart_buffer.csv with rolling 24 predictions.")
