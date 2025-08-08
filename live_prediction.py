@@ -8,6 +8,7 @@ from tensorflow.keras.models import load_model
 from src.quantile_model import quantile_loss, load_quantile_models
 from src.live_fetch import fetch_realtime_totals, fetch_current_weather, fetch_and_store, append_to_buffer, get_ontario_zonal_average
 from src.live_engineering import load_scaler, load_buffer, calculate_features, process_new_data
+import time
 
 
 
@@ -22,25 +23,16 @@ if __name__ == "__main__":
     features_dict = calculate_features(df)
     scaled_features = process_new_data(features_dict)
 
-    # Print the feature vector for debugging 
-    print("🧾 Sample features row:", scaled_features[0])
-
 
     models = load_quantile_models()
+
     predictions = {
         'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
         'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
         'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
     }
 
-    print("HOEP Predictions:")
-    print(f"10th percentile: ${predictions['q10']:.2f}")
-    print(f"50th percentile: ${predictions['q50']:.2f}")
-    print(f"90th percentile: ${predictions['q90']:.2f}")
-    
-     # Step 3: Update predictions_log.csv
-   
-    # Step 4: Append new prediction row
+    # Set up dictionary for appending
     predicted_for = pd.to_datetime(df['timestamp'].iloc[-1]).ceil('h') + timedelta(hours=1)
     new_entry = {
         "predicted_for_hour": predicted_for.strftime("%Y-%m-%d %H:%M:%S"),
@@ -49,7 +41,10 @@ if __name__ == "__main__":
         "pred_q90": predictions['q90'],
         "timestamp_predicted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "actual_hoep": None
+
     }
+    
+
   # Step 3: Update predictions_log.csv
     log_path = "data/predictions_log.csv"
 
@@ -62,7 +57,7 @@ if __name__ == "__main__":
                 log_df.loc[1, 'actual_hoep'] = actual_hoep
                 print(f"✅ Injected actual HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
             else:
-                print("⚠️ Middle row already has actual HOEP — skipping injection.")
+                print("Middle row already has actual HOEP — skipping injection.")
 
             # Drop the oldest row (index 0)
             log_df = log_df.iloc[1:]
@@ -71,26 +66,16 @@ if __name__ == "__main__":
         log_df = pd.DataFrame(columns=[
             "predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"
         ])
-        print("📂 Created new predictions_log.csv")
+        print("Created new predictions_log.csv")
 
     # Step 4: Append new prediction row
-    predicted_for = pd.to_datetime(df['timestamp'].iloc[-1]).ceil('h') + timedelta(hours=1)
-    new_entry = {
-        "predicted_for_hour": predicted_for.strftime("%Y-%m-%d %H:%M:%S"),
-        "pred_q10": predictions['q10'],
-        "pred_q50": predictions['q50'],
-        "pred_q90": predictions['q90'],
-        "timestamp_predicted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "actual_hoep": None
-    }
-
     log_df = pd.concat([log_df, pd.DataFrame([new_entry])], ignore_index=True)
 
     numeric_cols = ['pred_q10', 'pred_q50', 'pred_q90']
     log_df[numeric_cols] = log_df[numeric_cols].round(2)
 
     log_df.to_csv(log_path, index=False)
-    print("✅ Appended new prediction row.")
+    print("✅Appended new prediction row.")
    
 
     # ────────────────────────────────────────────────

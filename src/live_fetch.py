@@ -114,9 +114,9 @@ def append_to_buffer(data_dict):
         # Append to buffer
         updated_buffer = pd.concat([buffer_df, new_row], ignore_index=True)
 
-        # Ensure timestamp is datetime so we can sort
+        # Ensure timestamp is datetime 
         updated_buffer['timestamp'] = pd.to_datetime(updated_buffer['timestamp'], errors='coerce')
-        updated_buffer = updated_buffer.sort_values('timestamp')
+        
 
         # Always keep only the last 24 rows
         updated_buffer = updated_buffer.tail(24)
@@ -182,12 +182,12 @@ def fetch_live_features_only():
         feat["zonal_price"] = zonal_price if zonal_price is not None else None
         feat["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        print("── MANUAL LIVE FEATURE SNAPSHOT ──")
-        for k, v in feat.items():
-            print(f"{k:<15}: {v}")
 
         return feat
 
     except Exception as e:
         print(f"❌ Error in fetch_live_features_only: {e}")
         return None
+
+if __name__ == "__main__":
+    fetch_and_store()
