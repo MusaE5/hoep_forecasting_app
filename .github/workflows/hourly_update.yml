@@ -1,7 +1,7 @@
 name: Hourly HOEP Update
 on:
   schedule:
-    - cron: "40 * * * *"  
+    - cron: "40 * * * *"   # Run at 40 minutes past every hour
   workflow_dispatch: {}     # Allow manual run from GitHub Actions tab
 
 jobs:
@@ -47,12 +47,23 @@ jobs:
           TZ: America/Toronto
         run: python live_prediction.py
         
-      - name: Commit and push updated CSVs
+      - name: Commit and push updated CSVs to data branch
         env:
           TZ: America/Toronto
         run: |
+          # Create or switch to data branch
+          git checkout -b data-updates 2>/dev/null || git checkout data-updates
+          
+          # Merge any new data from main branch
+          git merge main --no-edit || echo "No merge needed"
+          
+          # Configure git
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          # Add and commit data files
           git add data/*.csv
-          git commit -m "Hourly update: $(date +"%Y-%m-%d %H:%M:%S %Z")" || echo "No changes to commit"
-          git push
+          git commit -m "Data update: $(date +"%Y-%m-%d %H:%M:%S %Z")" || echo "No changes to commit"
+          
+          # Push to data branch
+          git push origin data-updates
