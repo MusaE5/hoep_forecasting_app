@@ -5,6 +5,7 @@ import numpy as np
 import joblib
 import sys
 import os
+from zoneinfo import ZoneInfo
 
 # Add project root (2 levels up from /pages/)
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
@@ -86,7 +87,8 @@ st.markdown(
 # Section 1: Forecast Target (same logic)
 # ──────────────────────────────────────
 with st.container():
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    toronto_tz = ZoneInfo('America/Toronto')
+    timestamp = datetime.now(toronto_tz).strftime("%Y-%m-%d %H:%M:%S")
     beginning_range = pd.Timestamp(timestamp).ceil('h') + timedelta(hours=1)
     end_range = beginning_range + timedelta(hours=1) - timedelta(seconds=1)
 
