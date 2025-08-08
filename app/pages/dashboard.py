@@ -16,7 +16,7 @@ st.title(" 24-Hour Forecast vs. Actual HOEP")
 chart_path = "data/chart_buffer.csv"
 
 try:
-    df = pd.read_csv(chart_path)
+    df = pd.read_csv('https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/chart_buffer.csv')
 
     # Convert datetime columns
     df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'], errors='coerce')
