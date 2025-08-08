@@ -138,7 +138,7 @@ with col2:
     # Card wrapper; title LEFT-aligned to match the column's content edge
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown(
-        "<h3 style='text-align:left; margin: 0 0 0.5rem 0;'>Next Prediction In</h3>",
+        "<h3 style='text-align:left; margin: 0 0 0.5rem 0;'>Next Prediction in roughly</h3>",
         unsafe_allow_html=True
     )
 
