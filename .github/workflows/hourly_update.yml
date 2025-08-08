@@ -66,4 +66,4 @@ jobs:
           git commit -m "Data update: $(date +"%Y-%m-%d %H:%M:%S %Z")" || echo "No changes to commit"
           
           # Push to data branch
-          git push origin data-updates
+          git push origin data-updates --force
