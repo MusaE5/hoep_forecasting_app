@@ -4,7 +4,6 @@ import requests
 import pandas as pd
 from xml.etree import ElementTree as ET
 from datetime import datetime
-import schedule
 import time
 import os
 from pathlib import Path
