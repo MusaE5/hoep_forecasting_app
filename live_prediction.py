@@ -43,10 +43,8 @@ if __name__ == "__main__":
     }
     
 
-    log_url = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/predictions_log.csv"
-    log_df = pd.read_csv(log_url)
     log_path = "data/predictions_log.csv"
-
+    log_df = pd.read_csv(log_path)
     
 
     if len(log_df) == 3:
@@ -60,7 +58,6 @@ if __name__ == "__main__":
         # Drop the oldest row (index 0)
         log_df = log_df.iloc[1:]
 
- 
 
     # Step 4: Append new prediction row
     log_df = pd.concat([log_df, pd.DataFrame([new_entry])], ignore_index=True)
@@ -72,10 +69,9 @@ if __name__ == "__main__":
    
     
 
-
-    chart_url_path = "https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/chart_buffer.csv"
-    chart_df = pd.read_csv(chart_url_path)
     chart_buffer_path = "data/chart_buffer.csv"
+    chart_df = pd.read_csv(chart_buffer_path)
+    
     
     chart_cols = ["predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"]
     chart_entry = {k: new_entry[k] for k in chart_cols if k in new_entry}
