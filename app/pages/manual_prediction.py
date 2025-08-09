@@ -3,24 +3,16 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import joblib
-import sys
-import os
 from zoneinfo import ZoneInfo
 
-# Add project root (2 levels up from /pages/)
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
 from src.live_engineering import load_scaler, load_buffer, calculate_features, process_new_data
 from src.live_fetch import fetch_live_features_only
 from src.quantile_model import quantile_loss, load_quantile_models
 
-# ──────────────────────────────────────
-# Page Configuration
-# ──────────────────────────────────────
+#Page config
 st.set_page_config(page_title="Manual Prediction", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
 
-# ──────────────────────────────────────
-# Theme & Styling (visual-only)
-# ──────────────────────────────────────
+# Theme and styling
 st.markdown("""
 <style>
 :root {
@@ -83,9 +75,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# ──────────────────────────────────────
-# Section 1: Forecast Target (same logic)
-# ──────────────────────────────────────
+#Forecast target (same logic as main.py)
 with st.container():
     toronto_tz = ZoneInfo('America/Toronto')
     timestamp = datetime.now(toronto_tz).strftime("%Y-%m-%d %H:%M:%S")
@@ -102,9 +92,7 @@ with st.container():
     )
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ──────────────────────────────────────
-# Section 2: Execute (same logic)
-# ──────────────────────────────────────
+# Same logic as live prediction with no saving
 with st.container():
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
     st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -112,7 +100,7 @@ with st.container():
 
     if st.button("Predict Now"):
         with st.spinner("Fetching live data and generating prediction..."):
-            data_path = 'https://raw.githubusercontent.com/MusaE5/hoep_forecasting_app/data-updates/data/hoep_buffer.csv'
+            data_path = 'data/hoep_buffer.csv'
             df = pd.read_csv(data_path).tail(23)
 
             live_feat = fetch_live_features_only()
@@ -135,9 +123,7 @@ with st.container():
             st.success("Prediction complete.")
     st.markdown("</div>", unsafe_allow_html=True)
 
-# ──────────────────────────────────────
-# Section 3: Results (presentation only)
-# ──────────────────────────────────────
+#Results
 with st.container():
     st.markdown("<div class='hr'></div>", unsafe_allow_html=True)
     st.markdown("#### Prediction Results")
