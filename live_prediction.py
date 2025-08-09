@@ -17,7 +17,7 @@ if __name__ == "__main__":
     if feat is not None:
         actual_hoep = feat['zonal_price']
 
-    df = pd.read_csv(data/hoep_buffer.csv)
+    df = pd.read_csv("data/hoep_buffer.csv")
     features_dict = calculate_features(df)
     scaled_features = process_new_data(features_dict)
 
