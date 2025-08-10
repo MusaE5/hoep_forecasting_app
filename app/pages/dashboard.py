@@ -4,16 +4,12 @@ import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime
 
-# ──────────────────────────────────────
-# Page Config
-# ──────────────────────────────────────
+# Page config
 st.set_page_config(page_title="Quantile Dashboard", layout="wide")
 st.title(" 24-Hour Forecast vs. Actual HOEP")
 
-# ──────────────────────────────────────
-# Load Data
-# ──────────────────────────────────────
-chart_path = "data/chart_buffer.csv"
+# Load data
+chart_path = "cloud_entry/data/chart_buffer.csv"
 
 try:
     df = pd.read_csv(chart_path)
@@ -29,9 +25,7 @@ except Exception as e:
     st.error(f"Failed to load chart buffer: {e}")
     st.stop()
 
-# ──────────────────────────────────────
-# Plot: Quantile Band + Actual HOEP
-# ──────────────────────────────────────
+# Plot quantile band with shading
 fig = go.Figure()
 
 # Quantile shading
@@ -94,9 +88,9 @@ fig.update_layout(
 
 st.plotly_chart(fig, use_container_width=True)
 
-# ──────────────────────────────────────
+
 # Performance Metrics
-# ──────────────────────────────────────
+
 st.markdown("###  Model Performance Metrics")
 
 # Quantile Coverage
@@ -109,8 +103,6 @@ col1, col2 = st.columns(2)
 col1.metric("Quantile Coverage (80%)", f"{coverage:.1%}")
 col2.metric("MAE (q50 vs HOEP)", f"${mae:.2f}")
 
-# ──────────────────────────────────────
-# Notes
-# ──────────────────────────────────────
+
 
 
