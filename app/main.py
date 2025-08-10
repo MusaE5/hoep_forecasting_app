@@ -62,7 +62,7 @@ h1, h2, h3 {
 """, unsafe_allow_html=True)
 
 # Load backend data
-df = pd.read_csv('data/predictions_log.csv')  # Changed f to df
+df = pd.read_csv('cloud_entry/data/predictions_log.csv')  # Changed f to df
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
 
@@ -218,7 +218,7 @@ with qa2:
 
 st.markdown("---")
 # Historical chart
-BUFFER_PATH = "data/hoep_buffer.csv"
+BUFFER_PATH = "cloud_entry/data/hoep_buffer.csv"
 if os.path.exists(BUFFER_PATH):
     hoep_df = pd.read_csv(BUFFER_PATH)
     hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
