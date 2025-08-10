@@ -60,7 +60,7 @@ if __name__ == "__main__":
     actual_hoep = feat['zonal_price'] if feat is not None else None
 
     # Step 2: Download latest CSVs from GitHub into TMP
-    for repo_path in ["data/hoep_buffer.csv", "data/predictions_log.csv", "data/chart_buffer.csv"]:
+    for repo_path in ["cloud_entry/data/hoep_buffer.csv", "cloud_entry/data/predictions_log.csv", "cloud_entry/data/chart_buffer.csv"]:
         content = gh_get(repo_path)
         with open(os.path.join(TMP, os.path.basename(repo_path)), "wb") as f:
             f.write(content)
@@ -124,15 +124,13 @@ if __name__ == "__main__":
     chart_df.to_csv(chart_buffer_path, index=False)
 
     # Push updates to github
-   # Push updates to github
     with open(log_path, "rb") as f:
-        gh_put("data/predictions_log.csv", f.read(), "Update predictions_log.csv from Cloud Function")
+        gh_put("cloud_entry/data/predictions_log.csv", f.read(), "Update predictions_log.csv from Cloud Function")
 
     with open(chart_buffer_path, "rb") as f:
-        gh_put("data/chart_buffer.csv", f.read(), "Update chart_buffer.csv from Cloud Function")
+        gh_put("cloud_entry/data/chart_buffer.csv", f.read(), "Update chart_buffer.csv from Cloud Function")
 
-# ADD THIS - push the updated buffer back to GitHub
     with open(buffer_file, "rb") as f:
-        gh_put("data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
+        gh_put("cloud_entry/data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
 
     print(" Predictions updated and pushed to GitHub.")
