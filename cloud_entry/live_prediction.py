@@ -124,10 +124,15 @@ if __name__ == "__main__":
     chart_df.to_csv(chart_buffer_path, index=False)
 
     # Push updates to github
+   # Push updates to github
     with open(log_path, "rb") as f:
         gh_put("data/predictions_log.csv", f.read(), "Update predictions_log.csv from Cloud Function")
 
     with open(chart_buffer_path, "rb") as f:
         gh_put("data/chart_buffer.csv", f.read(), "Update chart_buffer.csv from Cloud Function")
+
+# ADD THIS - push the updated buffer back to GitHub
+    with open(buffer_file, "rb") as f:
+        gh_put("data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
 
     print(" Predictions updated and pushed to GitHub.")
