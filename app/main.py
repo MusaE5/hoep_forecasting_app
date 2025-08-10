@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
-import os
+
 
 # Page configuration
 st.set_page_config(
@@ -219,11 +219,9 @@ with qa2:
 st.markdown("---")
 # Historical chart
 BUFFER_PATH = "cloud_entry/data/hoep_buffer.csv"
-if os.path.exists(BUFFER_PATH):
-    hoep_df = pd.read_csv(BUFFER_PATH)
-    hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
-else:
-    hoep_df = pd.DataFrame(columns=["timestamp", "zonal_price"])
+hoep_df = pd.read_csv(BUFFER_PATH)
+hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
+
 
 hoep_df = hoep_df.tail(24)
 st.markdown("### Recent HOEP Trends")
