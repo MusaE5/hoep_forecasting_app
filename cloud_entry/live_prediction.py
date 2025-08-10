@@ -55,15 +55,17 @@ TMP = "/tmp" if os.path.isdir("/tmp") else "data"
 
 if __name__ == "__main__":
 
-    # Step 1: Fetch and append live HOEP/weather data
-    feat = fetch_and_store()
-    actual_hoep = feat['zonal_price'] if feat is not None else None
+   
 
-    # Step 2: Download latest CSVs from GitHub into TMP
+    # Step1: Download latest CSVs from GitHub into TMP
     for repo_path in ["cloud_entry/data/hoep_buffer.csv", "cloud_entry/data/predictions_log.csv", "cloud_entry/data/chart_buffer.csv"]:
         content = gh_get(repo_path)
         with open(os.path.join(TMP, os.path.basename(repo_path)), "wb") as f:
             f.write(content)
+
+     # Step 2: Fetch and append live HOEP/weather data
+    feat = fetch_and_store()
+    actual_hoep = feat['zonal_price'] if feat is not None else None
 
     # Step 3: Load buffer & prepare features
     buffer_file = os.path.join(TMP, "hoep_buffer.csv")
