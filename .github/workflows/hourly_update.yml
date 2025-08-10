@@ -1,26 +1,23 @@
 name: Hourly HOEP Update
-
 on:
-  schedule:
-    - cron: "52 * * * *"   # Run at the 55th minute of every hour (UTC → matches EST/EDT minute 55)
-  workflow_dispatch: {}     # Allow manual run from GitHub Actions tab
+  workflow_dispatch: {}  # Allow manual run from GitHub Actions tab
 
 jobs:
   run-hourly:
     runs-on: ubuntu-latest
     permissions:
       contents: write  # Needed to push updated CSVs
-
+    
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
-
+       
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
           cache: 'pip'  # built-in cache for pip dependencies
-
+       
       - name: Cache pip downloads
         uses: actions/cache@v3
         with:
@@ -28,7 +25,7 @@ jobs:
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
-
+       
       - name: Cache installed Python packages
         uses: actions/cache@v3
         with:
@@ -36,23 +33,23 @@ jobs:
           key: ${{ runner.os }}-python-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-python-
-
+       
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+       
       # Optional: set API keys from GitHub Secrets if needed
       # - name: Set environment variables
       #   run: echo "MY_API_KEY=${{ secrets.MY_API_KEY }}" >> $GITHUB_ENV
-
+       
       - name: Run live prediction script
         run: python live_prediction.py
-
+       
       - name: Commit and push updated CSVs
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add data/*.csv
-          git commit -m "Hourly update: $(date -u +"%Y-%m-%d %H:%M:%SZ")" || echo "No changes to commit"
+          git commit -m "Manual update: $(date -u +"%Y-%m-%d %H:%M:%SZ")" || echo "No changes to commit"
           git push
