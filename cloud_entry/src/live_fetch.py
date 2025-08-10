@@ -1,4 +1,3 @@
-
 import io
 import requests
 import pandas as pd
@@ -20,7 +19,8 @@ TIMEZONE = "America/Toronto"
 NAMESPACE = {'ns': 'http://www.ieso.ca/schema'}
 
 # Buffer settings
-BUFFER_FILE = "data/hoep_buffer.csv"
+TMP = "/tmp" if os.path.isdir("/tmp") else "data"
+BUFFER_FILE = os.path.join(TMP, "hoep_buffer.csv")
 
 def fetch_realtime_totals():
     """Return dict with demand + OR values from the latest 5-min row, plus market demand."""
@@ -189,5 +189,3 @@ def fetch_live_features_only():
         print(f"❌ Error in fetch_live_features_only: {e}")
         return None
 
-if __name__ == "__main__":
-    fetch_and_store()
