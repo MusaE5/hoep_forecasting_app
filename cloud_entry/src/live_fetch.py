@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 import os
 from pathlib import Path
+import pytz
 
 # Constants
 URL_TOTALS = (
@@ -149,7 +150,9 @@ def fetch_and_store():
             feat["zonal_price"] = None  # Store None if failed
         
         # Add timestamp
-        feat["timestamp"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        import pytz
+        TORONTO_TZ = pytz.timezone('America/Toronto')
+        feat["timestamp"] = datetime.now(TORONTO_TZ).strftime("%Y-%m-%d %H:%M:%S")
 
 
         print("── LIVE FEATURE SNAPSHOT ──")
