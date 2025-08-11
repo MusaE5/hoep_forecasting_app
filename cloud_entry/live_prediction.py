@@ -3,15 +3,17 @@ import base64
 import requests
 import pandas as pd
 from datetime import timedelta, datetime
+import pytz
 import tensorflow as tf
 from tensorflow.keras.models import load_model
 from src.quantile_model import quantile_loss, load_quantile_models
 from src.live_fetch import fetch_and_store
 from src.live_engineering import load_buffer, calculate_features, process_new_data
 
+# Set timezone
+TORONTO_TZ = pytz.timezone('America/Toronto')
 
 # GitHub repo info
-
 REPO = "MusaE5/hoep_forecasting_app"
 BRANCH = "main"
 GH_API = "https://api.github.com"
@@ -55,17 +57,15 @@ TMP = "/tmp" if os.path.isdir("/tmp") else "data"
 
 if __name__ == "__main__":
 
-   
-
-    # Step1: Download latest CSVs from GitHub into TMP
+    # Step 2: Download latest CSVs from GitHub into TMP
     for repo_path in ["cloud_entry/data/hoep_buffer.csv", "cloud_entry/data/predictions_log.csv", "cloud_entry/data/chart_buffer.csv"]:
         content = gh_get(repo_path)
         with open(os.path.join(TMP, os.path.basename(repo_path)), "wb") as f:
             f.write(content)
 
-     # Step 2: Fetch and append live HOEP/weather data
+    # Step 1: Fetch and append live HOEP/weather data
     feat = fetch_and_store()
-    actual_hoep = feat['zonal_price'] if feat is not None else None
+    actual_hoep = feat['zonal_price'] if feat is not None else None        
 
     # Step 3: Load buffer & prepare features
     buffer_file = os.path.join(TMP, "hoep_buffer.csv")
@@ -83,12 +83,13 @@ if __name__ == "__main__":
 
     # Step 5: Prepare new prediction entry
     predicted_for = pd.to_datetime(df['timestamp'].iloc[-1]).ceil('h') + timedelta(hours=1)
+    toronto_now = datetime.now(TORONTO_TZ)
     new_entry = {
         "predicted_for_hour": predicted_for.strftime("%Y-%m-%d %H:%M:%S"),
         "pred_q10": predictions['q10'],
         "pred_q50": predictions['q50'],
         "pred_q90": predictions['q90'],
-        "timestamp_predicted_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "timestamp_predicted_at": toronto_now.strftime("%Y-%m-%d %H:%M:%S"),
         "actual_hoep": None
     }
 
