@@ -1,7 +1,7 @@
 import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
-
+import pytz
 
 # Page configuration
 st.set_page_config(
@@ -73,7 +73,10 @@ latest_pred_q10 = latest_row['pred_q10']
 latest_pred_q50 = latest_row['pred_q50']
 latest_pred_q90 = latest_row['pred_q90']
 
-now = datetime.now()
+# Get current time in Toronto timezone
+toronto_tz = pytz.timezone('America/Toronto')
+now = datetime.now(toronto_tz)
+
 current_hour = now.replace(minute=0, second=0, microsecond=0)
 next_prediction_time = current_hour.replace(minute=55)
 if now.minute >= 55:
