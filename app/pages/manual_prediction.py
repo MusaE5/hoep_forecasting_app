@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import pandas as pd
 import numpy as np
 import joblib
-
+import pytz
 
 
 from cloud_entry.src.live_engineering import load_scaler, load_buffer, calculate_features, process_new_data
@@ -84,7 +84,9 @@ st.markdown(
 # Section 1: Forecast Target (same logic)
 
 with st.container():
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    toronto_tz = pytz.timezone('America/Toronto')
+    timestamp = datetime.now(toronto_tz).strftime("%Y-%m-%d %H:%M:%S")
     beginning_range = pd.Timestamp(timestamp).ceil('h') + timedelta(hours=1)
     end_range = beginning_range + timedelta(hours=1) - timedelta(seconds=1)
 
