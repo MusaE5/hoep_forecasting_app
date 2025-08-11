@@ -4,6 +4,12 @@ import pandas as pd
 import numpy as np
 import joblib
 import pytz
+import sys
+import os
+
+# Add the repo root to Python path
+repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+sys.path.insert(0, repo_root)
 
 
 from cloud_entry.src.live_engineering import load_scaler, load_buffer, calculate_features, process_new_data
