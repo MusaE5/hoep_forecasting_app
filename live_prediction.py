@@ -55,9 +55,9 @@ if __name__ == "__main__":
             # Inject actual HOEP into the middle row
             if pd.isna(log_df.loc[1, 'actual_hoep']):
                 log_df.loc[1, 'actual_hoep'] = actual_hoep
-                print(f"✅ Injected actual HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
+                print(f"✅ Injected HOEP {actual_hoep:.2f} into predicted_for_hour {log_df.loc[1, 'predicted_for_hour']}")
             else:
-                print("Middle row already has actual HOEP — skipping injection.")
+                print("Middle row already has actual HOEP, skipping injection.")
 
             # Drop the oldest row (index 0)
             log_df = log_df.iloc[1:]
@@ -78,10 +78,9 @@ if __name__ == "__main__":
     print("✅Appended new prediction row.")
    
 
-    # ────────────────────────────────────────────────
-    # 🔁 Maintain 24-row rolling chart buffer (no actual HOEP here)
-    # ────────────────────────────────────────────────
-
+    
+    # 🔁 Maintain 24-row rolling chart buffer
+   
 
     chart_buffer_path = "data/chart_buffer.csv"
     chart_cols = ["predicted_for_hour", "pred_q10", "pred_q50", "pred_q90", "timestamp_predicted_at", "actual_hoep"]
@@ -112,4 +111,4 @@ if __name__ == "__main__":
 
     # Save
     chart_df.to_csv(chart_buffer_path, index=False)
-    print("📈 Updated chart_buffer.csv with rolling 24 predictions.")
+    print(" Updated chart_buffer.csv with rolling 24 predictions.")
