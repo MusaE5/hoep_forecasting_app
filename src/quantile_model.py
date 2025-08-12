@@ -9,16 +9,15 @@ import os
 import joblib
 import json
 
-# --- Global Quantiles ---
+#  Global Quantiles 
 quantiles = [0.1, 0.5, 0.9]
 
-# --- Loss Functions ---
+#  Loss Function 
 def quantile_loss(q):
     def loss(y_true, y_pred):
         error = y_true - y_pred
         return tf.reduce_mean(tf.maximum(q * error, (q - 1) * error))
     return loss
-
 
 
 #  Model Builders
