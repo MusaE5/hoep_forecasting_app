@@ -1,10 +1,6 @@
 venv/
 __pycache__/
 .ipynb_checkpoints/
-*.h5
-*.keras
-*.pkls
-*.csv
 .DS_Store
 # Ignore raw data files
 data/raw/
