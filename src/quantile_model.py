@@ -19,15 +19,9 @@ def quantile_loss(q):
         return tf.reduce_mean(tf.maximum(q * error, (q - 1) * error))
     return loss
 
-def combined_quantile_loss(y_true, y_pred):
-    total_loss = 0
-    for i, q in enumerate(quantiles):
-        q_pred = y_pred[:, i:i+1]
-        error = y_true - q_pred
-        total_loss += tf.reduce_mean(tf.maximum(q * error, (q - 1) * error))
-    return total_loss
 
-# --- Model Builders ---
+
+#  Model Builders
 def create_multi_quantile_model(input_shape, quantiles=quantiles):
     model = Sequential([
         Input(shape=(input_shape,)),
@@ -45,28 +39,21 @@ def create_multi_quantile_model(input_shape, quantiles=quantiles):
     return model
 
 
-# --- Training ---
-def train_quantile_models(X_train, y_train, X_test, y_test, method='separate'):
-    if method == 'combined':
-        model = create_multi_quantile_model(X_train.shape[1])
+#  Training 
+def train_quantile_models(X_train, y_train, X_test, y_test):
+
+    quantile_models = {}
+    quantile_predictions = {}
+    for q in quantiles:
+        print(f"Training quantile {q} model...")
+        model = create_single_quantile_model(X_train.shape[1], q)
         early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-        model.fit(X_train, y_train, validation_split=0.1, epochs=100, batch_size=32, callbacks=[early_stop], verbose=1)
-        predictions = model.predict(X_test, verbose=0)
-        quantile_predictions = {f'q_{int(q * 100)}': predictions[:, i] for i, q in enumerate(quantiles)}
-        quantile_models = {'combined': model}
-    else:
-        quantile_models = {}
-        quantile_predictions = {}
-        for q in quantiles:
-            print(f"Training quantile {q} model...")
-            model = create_single_quantile_model(X_train.shape[1], q)
-            early_stop = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True)
-            model.fit(X_train, y_train, validation_split=0.1, epochs=100, batch_size=32, callbacks=[early_stop], verbose=0)
-            quantile_models[f'q_{int(q * 100)}'] = model
-            quantile_predictions[f'q_{int(q * 100)}'] = model.predict(X_test, verbose=0).flatten()
+        model.fit(X_train, y_train, validation_split=0.1, epochs=100, batch_size=32, callbacks=[early_stop], verbose=0)
+        quantile_models[f'q_{int(q * 100)}'] = model
+        quantile_predictions[f'q_{int(q * 100)}'] = model.predict(X_test, verbose=0).flatten()
     return quantile_predictions, quantile_models
 
-# --- Save/Load ---
+# -Save/Load 
 def save_quantile_models(quantile_models, scaler, features_list, model_dir="models"):
     os.makedirs(model_dir, exist_ok=True)
     for q_name, model in quantile_models.items():
@@ -83,55 +70,9 @@ def save_quantile_models(quantile_models, scaler, features_list, model_dir="mode
     with open(os.path.join(model_dir, "quantile_config.json"), 'w') as f:
         json.dump(config, f, indent=2)
 
-# --- Load ---
-def load_quantile_models(model_dir="models"):
-    with open(os.path.join(model_dir, "quantile_config.json"), 'r') as f:
-        config = json.load(f)
-    scaler = joblib.load(os.path.join(model_dir, config['scaler_file']))
-    quantile_models = {}
-    for q_name, model_file in config['model_files'].items():
-        model_path = os.path.join(model_dir, model_file)
-        if config['method'] == 'combined':
-            model = load_model(model_path, custom_objects={'combined_quantile_loss': combined_quantile_loss})
-        else:
-            q_value = float(q_name.split('_')[1]) / 100
-            model = load_model(model_path, custom_objects={'loss': quantile_loss(q_value)})
-        quantile_models[q_name] = model
-    return quantile_models, scaler, config
 
-# --- Prediction ---
-def predict_quantiles(quantile_models, scaler, X_new, config):
-    X_scaled = scaler.transform(X_new)
-    predictions = {}
-    if config['method'] == 'combined':
-        model = quantile_models['combined']
-        pred_array = model.predict(X_scaled, verbose=0)
-        for i, q in enumerate(config['quantiles']):
-            predictions[f'q_{int(q * 100)}'] = pred_array[:, i]
-    else:
-        for q_name, model in quantile_models.items():
-            predictions[q_name] = model.predict(X_scaled, verbose=0).flatten()
-    return predictions
 
-def predict_single_sample(quantile_models, scaler, config, features_dict):
-    feature_array = np.array([features_dict[feat] for feat in config['features']]).reshape(1, -1)
-    predictions = predict_quantiles(quantile_models, scaler, feature_array, config)
-    return {q_name: float(pred[0]) for q_name, pred in predictions.items()}
-
-def get_prediction_summary(predictions):
-    median = predictions.get('q_50')
-    low = predictions.get('q_10')
-    high = predictions.get('q_90')
-    return {
-        'predicted_price': median,
-        'confidence_interval_80': {
-            'lower': low,
-            'upper': high,
-            'width': high - low if (high is not None and low is not None) else None
-        }
-    }
-
-# --- Evaluation ---
+#  Evaluation 
 def evaluate_quantile_predictions(y_true, quantile_predictions):
     results = {}
     for q_name, q_pred in quantile_predictions.items():
@@ -164,7 +105,7 @@ def calculate_prediction_intervals(quantile_predictions, confidence_levels=[0.8]
     return intervals
 
 
-# --- Visualization ---
+# Visualization 
 def plot_quantile_predictions(y_true, quantile_predictions, start_idx=0, end_idx=200):
     x = range(start_idx, min(end_idx, len(y_true)))
     plt.figure(figsize=(12, 6))
