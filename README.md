@@ -26,7 +26,7 @@ The live application provides:
 
 ---
 
-## 📸 Application Features
+##  Application Features
 
 ### Main Dashboard
 *[Screenshot: Live countdown timer, median forecast with confidence bands, 24-hour price chart]*
@@ -75,8 +75,6 @@ Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models
 - **Timing Logic**: Predictions generated after Market Clearing Prices finalize (T+2 forecasting)
 - **Data Persistence**: CSV buffers updated and synced via GitHub for Streamlit consumption
 
-<details>
-<summary>Detailed Implementation Files</summary>
 
 **Core Training Pipeline**
 - `train.py`: Full model training with quantile regression
@@ -99,26 +97,21 @@ Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models
 
 ## 📊 Model Performance
 
-### Quantile Regression Results
-- **80% Confidence Intervals**: Effective uncertainty quantification for risk management
-- **Coverage Analysis**: Actual prices fall within Q10-Q90 bands ~80% of target time
-- **Median Forecast**: Competitive accuracy with IESO predispatch prices
-- **Real-time Validation**: Continuous performance tracking with live market data
-
-### Training & Validation
-- **Training Period**: 2014-2025 historical data (10+ years)
-- **Time-based Splits**: Chronological train/test to prevent data leakage
-- **Live Performance**: Updated hourly with actual market outcomes
-- **Feature Count**: 31 engineered features after preprocessing
+### Metric Results
+- **Median Forecast RMSE**: 24.17 CAD/MWh (2024 test data)
+- **Hour-2 Predispatch RMSE**: 29.67 CAD/MWh (baseline comparison)
+- **Performance Improvement**: 18.5% lower RMSE than IESO predispatch
+- **Training Period**: 2014-2022, Validation: 2023, Test: 2024
+- 
 
 ---
 
-## 🔮 Future Enhancements
+##  Future Enhancements
 
 ### Model Improvements
-- **Feature Selection**: Remove noisy variables identified in ongoing research
+- **Feature Selection**: Remove noisy variables identified in research
 - **Architecture Optimization**: Explore ensemble methods and alternative quantile approaches
-- **Multi-Horizon**: Extend to 6, 12, and 24-hour forecasts
+- **Multi-Horizon**: Extend to 1-6 hour forecasting
 
 ### System Enhancements  
 - **API Development**: RESTful endpoints for external integration
@@ -127,46 +120,7 @@ Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models
 
 ---
 
-## 🛠️ Development Setup
-
-<details>
-<summary>For Contributors: Local Development</summary>
-
-### Prerequisites
-- Python 3.10+
-- Google Cloud Account
-- Git
-
-### Local Setup
-```bash
-git clone <your-repo-url>
-cd hoep_forecasting_app
-pip install -r requirements.txt
-streamlit run app/main.py
-```
-
-### Model Training
-```bash
-python train.py  # Full retraining pipeline
-python tests/test_baseline_rmse.py  # Performance validation
-```
-
-### Cloud Function Deployment
-1. Deploy `cloud_entry/` directory to Google Cloud Functions
-2. Set up Cloud Scheduler for hourly triggers at 55 minutes
-3. Configure GitHub token for CSV repository updates
-
-</details>
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License.
-
----
-
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **IESO**: Independent Electricity System Operator for real-time market data
 - **Open-Meteo**: Weather API for current conditions  
@@ -176,11 +130,8 @@ This project is licensed under the MIT License.
 
 ---
 
-## 📞 Contact
-
-- **Live Application**: [Ontario Electricity Forecasting](https://ontarioelectricityforecasting.streamlit.app/)
-- **Project Repository**: [GitHub](https://github.com/yourusername/hoep_forecasting_app)
-
+## Author
+- **Musa Elashaal**
 ---
 
 *Research-driven electricity price forecasting with production deployment*
