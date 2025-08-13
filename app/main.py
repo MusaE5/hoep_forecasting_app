@@ -3,6 +3,9 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pytz
 
+# To prevent streamlit from getting stuck
+st.cache_data.clear()
+st.cache_resource.clear()
 # Page configuration
 st.set_page_config(
     page_title="HOEP Forecasting App",
