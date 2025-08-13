@@ -25,30 +25,28 @@ The live application provides:
 - Live countdown to next automated forecast
 
 ---
-
-##  Application Features
+## Application Features
 
 ### Main Dashboard
-*[Screenshot: Live countdown timer, median forecast with confidence bands, 24-hour price chart]*
+![Homepage](assets/homepage.png)
 
 - **Live Countdown**: Timer to next prediction at the 56th minute when MCPs finalize
 - **Current Forecast**: $XX.XX median price with 80% confidence band ($XX.XX - $XX.XX)
-- **Price Trends**: Interactive 24-hour HOEP chart showing market volatility
+- **Price Trends**: Interactive 24-hour HOEP chart showing market volatility (scroll below)
 
 ### Performance Analytics Dashboard
-*[Screenshot: Quantile accuracy chart, coverage metrics, MAE calculations]*
+![Actual vs Predicted](assets/actualvspredicted.png)
 
 - **Prediction vs Actual**: 24-hour rolling comparison with actual HOEP prices
 - **Model Performance**: Quantile coverage analysis (target: 80%, actual: XX%)
 - **Error Metrics**: Mean Absolute Error tracking for forecast accuracy
 
 ### Manual Prediction Interface  
-*[Screenshot: Manual trigger interface, immediate prediction results]*
+![Manual Prediction](assets/manual_prediction.png)
 
 - **On-Demand Forecasting**: Generate predictions outside the regular hourly schedule
 - **Real-Time Data**: Uses latest market and weather data for immediate forecasts
 - **Instant Results**: Q10, Q50, Q90 predictions with confidence intervals
-
 ---
 
 ## 🏗️ Technical Architecture
