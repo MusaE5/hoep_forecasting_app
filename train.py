@@ -79,7 +79,7 @@ from src.quantile_model import (
 
 print("Training quantile regression models...")
 quantile_predictions, quantile_models = train_quantile_models(
-    X_train, y_train, X_test, y_test, method='separate'
+    X_train, y_train, X_test, y_test
 )
 
 print("\nEvaluating quantile predictions...")
