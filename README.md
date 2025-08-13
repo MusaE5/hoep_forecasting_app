@@ -49,7 +49,7 @@ The live application provides:
 - **Instant Results**: Q10, Q50, Q90 predictions with confidence intervals
 ---
 
-## 🏗️ Technical Architecture
+## Technical Architecture
 
 ### System Overview
 ```
