@@ -4,7 +4,7 @@ A real-time electricity price forecasting application for Ontario's Hourly Ontar
 
 ---
 
-## 📚 Research Background
+## Research Background
 
 This application is an offshoot of my ongoing electricity market research, prioritizing **uncertainty quantification over speed** using feed-forward neural networks with quantile predictions. Rather than pursuing millisecond inference times, this system focuses on providing robust confidence intervals for price forecasts, which is crucial for risk management in electricity markets.
 
