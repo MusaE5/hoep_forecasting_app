@@ -93,18 +93,17 @@ Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models
 
 ---
 
-## 📊 Model Performance
+## Model Performance
 
 ### Metric Results
 - **Median Forecast RMSE**: 24.17 CAD/MWh (2024 test data)
 - **Hour-2 Predispatch RMSE**: 29.67 CAD/MWh (baseline comparison)
 - **Performance Improvement**: 18.5% lower RMSE than IESO predispatch
 - **Training Period**: 2014-2022, Validation: 2023, Test: 2024
-- 
-
+  
 ---
 
-##  Future Enhancements
+## Future Enhancements
 
 ### Model Improvements
 - **Feature Selection**: Remove noisy variables identified in research
