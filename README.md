@@ -1,210 +1,186 @@
-# HOEP Forecasting App
+# HOEP Forecasting App ⚡
 
-This app forecasts Ontario's Hourly Ontario Energy Price (HOEP) 1 hour in advance using real-time public data. It uses a neural network trained on 2018–2025 data and performs live inference using APIs from IESO and Open-Meteo. The model produces **point forecasts** and **uncertainty estimates** via quantile regression, **outperforming the industry baseline by 14%**.
-
----
-
-## 🎯 Project Summary
-
-- **Goal**: Predict HOEP 1 hour ahead using only live-accessible features
-- **Approach**: Quantile regression neural networks for probabilistic forecasting
-- **Performance**: **33.8 RMSE** vs **39.5 RMSE industry baseline** (14% improvement)
-- **Application**: Real-time forecasting API with uncertainty quantification
-- **Deployment Ready**: All inputs accessible via API/web scraping with <1 hour latency
+A real-time electricity price forecasting application for Ontario's Hourly Ontario Energy Price (HOEP) using machine learning and live data integration.
 
 ---
 
-## 🏆 Key Results vs Industry Baseline
+## 📚 Research Background
 
-| Model | RMSE (CAD/MWh) | Improvement | Uncertainty Estimates |
-|-------|----------------|-------------|----------------------|
-| **Our Model (q_50)** | **33.8** | **14% better** | ✅ 80% confidence intervals |
-| IESO Hour-1 Predispatch | 39.5 | Industry baseline | ❌ Point estimates only |
-| XGBoost Baseline | 34.4 | Reference | ❌ Point estimates only |
+This application is an offshoot of my ongoing electricity market research, prioritizing **uncertainty quantification over speed** using feed-forward neural networks with quantile predictions. Rather than pursuing millisecond inference times, this system focuses on providing robust confidence intervals for price forecasts, which is crucial for risk management in electricity markets.
 
-![HOEP Forecast](assets/comparisons.png)
+The research-to-production pipeline demonstrates end-to-end deployment of machine learning research, taking academic concepts through to live, automated forecasting systems with real market data.
 
-
-**Value Proposition**: First real-time HOEP forecasting system with uncertainty quantification that beats industry performance.
+*Research paper link will be added upon publication.*
 
 ---
 
-## 🔢 Input Features (39 Total)
+## 🚀 Live Demo
 
-All features are accessible or computable from public APIs with <1 hour delay.
+**Try it now**: [Ontario Electricity Forecasting App](https://ontarioelectricityforecasting.streamlit.app/)
 
-| Category | Features Included | Data Source |
-|----------|-------------------|-------------|
-| **Time Encodings** | `hour_sin/cos`, `is_weekend`, `day_of_year`, `doy_sin/cos` | Computed |
-| **HOEP Lags** | `HOEP_lag_2/3/24` | IESO Real-Time |
-| **Demand Lags** | `demand_lag_2/3/24`, `demand_ma_3/24` | IESO Real-Time |
-| **Weather Features** | `temp/humidity/wind_speed_lag_2/3/24`, moving averages | Open-Meteo API |
-
-**Data Pipeline**: Fully automated with proper lag enforcement to prevent data leakage.
+The live application provides:
+- Real-time price forecasts with uncertainty quantification
+- 24-hour performance tracking with actual vs predicted comparisons  
+- Manual prediction capabilities
+- Live countdown to next automated forecast
 
 ---
 
-## Model Architecture
+## 📸 Application Features
 
-- **Type**: Separate neural networks per quantile (q10, q50, q90)
-- **Architecture**: 128-64-32-1 with LeakyReLU and Dropout
-- **Loss Function**: Quantile loss (pinball loss) for uncertainty estimation
-- **Training**: 2013-2023 data, validated on 2024-2025
-- **Frameworks**: TensorFlow, scikit-learn, pandas
+### Main Dashboard
+*[Screenshot: Live countdown timer, median forecast with confidence bands, 24-hour price chart]*
 
-```python
-# Model produces three outputs per prediction:
-{
-  'q_10': 28.5,   # 10th percentile (low estimate)
-  'q_50': 33.8,   # Median prediction (point forecast)
-  'q_90': 39.2    # 90th percentile (high estimate)
-}
+- **Live Countdown**: Timer to next prediction at the 56th minute when MCPs finalize
+- **Current Forecast**: $XX.XX median price with 80% confidence band ($XX.XX - $XX.XX)
+- **Price Trends**: Interactive 24-hour HOEP chart showing market volatility
+
+### Performance Analytics Dashboard
+*[Screenshot: Quantile accuracy chart, coverage metrics, MAE calculations]*
+
+- **Prediction vs Actual**: 24-hour rolling comparison with actual HOEP prices
+- **Model Performance**: Quantile coverage analysis (target: 80%, actual: XX%)
+- **Error Metrics**: Mean Absolute Error tracking for forecast accuracy
+
+### Manual Prediction Interface  
+*[Screenshot: Manual trigger interface, immediate prediction results]*
+
+- **On-Demand Forecasting**: Generate predictions outside the regular hourly schedule
+- **Real-Time Data**: Uses latest market and weather data for immediate forecasts
+- **Instant Results**: Q10, Q50, Q90 predictions with confidence intervals
+
+---
+
+## 🏗️ Technical Architecture
+
+### System Overview
 ```
-![HOEP Forecast](assets/80thpercentile.png)
-
-
----
-
-## 📊 Performance Metrics (2024–2025 Test Data)
-
-### Point Forecast Performance
-| Metric | Value | vs Industry |
-|--------|-------|-------------|
-| **RMSE** | **33.8 CAD/MWh** | **14% better** |
-| **MAE** | 11.2 CAD/MWh | 27% better |
-| **R²** | 0.287 | - |
-
-### Uncertainty Quantification
-| Quantile | Expected Coverage | Actual Coverage | Calibration |
-|----------|-------------------|------------------|-------------|
-| q_10 (Low) | 10% | 7.3% | Slightly conservative |
-| q_50 (Median) | 50% | 44.6% | Well-calibrated |
-| q_90 (High) | 90% | 88.8% | Excellent |
-
-**80% Prediction Intervals**: Average width ~5-6 CAD/MWh
-
----
-
-## 🌐 Live Deployment Architecture
-
-### Data Sources
-- **Weather**: [Open-Meteo API](https://open-meteo.com/) (Toronto station)
-- **Market Data**: [IESO Real-Time Reports](https://www.ieso.ca/en/Power-Data/Data-Directory)
-- **Update Frequency**: Hourly polling with proper lag simulation
-
-### Inference Pipeline
-1. **Data Collection**: Automated API polling every hour
-2. **Feature Engineering**: Real-time lag computation and scaling
-3. **Prediction**: Quantile regression inference (~10ms latency)
-4. **Output**: Price forecast + 80% confidence interval
-
-### Production Features
-- ✅ **No data leakage**: Only uses information available at prediction time
-- ✅ **Error handling**: Robust API failure recovery
-- ✅ **Monitoring**: Performance tracking vs actual outcomes
-- ✅ **Scalable**: Containerized deployment ready
-
----
-
-## 🎯 Business Impact
-
-### For Grid Operators
-- **Risk Management**: Uncertainty bounds enable better decision-making
-- **Cost Savings**: 14% more accurate forecasts reduce operational costs
-- **Real-Time**: Live deployment supports hour-ahead market participation
-
-### Technical Innovation
-- **First** real-time HOEP system with uncertainty quantification
-- **Novel**: Quantile regression applied to electricity price forecasting
-- **Practical**: Addresses deployment constraints ignored by academic literature
-
----
-
-## 🛠️ Technical Skills Demonstrated
-
-| Category | Technologies |
-|----------|-------------|
-| **Machine Learning** | TensorFlow, scikit-learn, quantile regression, neural networks |
-| **Data Engineering** | pandas, API integration, real-time pipelines, feature engineering |
-| **Software Engineering** | Python, modular design, error handling, containerization |
-| **Domain Knowledge** | Electricity markets, time series forecasting, Ontario energy sector |
-| **Research** | Literature review, experimental design, performance evaluation |
-
----
-
-## 📁 Project Structure
-
-```text
-hoep_forecasting_app/
-├── train.py                         # Main training script 
-├── live_prediction.py               # Feature engineering live data, scale, and feed to quantile models for predictions
-├── requirements.txt                 # Python dependencies
-├── README.md                        # Project documentation
-│
-├── src/                             # Core source code
-│   ├── data_loader.py               # Load + preprocess HOEP, demand, weather
-│   ├── feature_engineering.py       # Lag/rolling/encoded features
-│   ├── live_fetch.py                # Real-time IESO + weather API fetch
-│   └── quantile_model.py            # Define Quantile model architecture, loss, training, saving functions
-│
-├── models/                          # Trained models and scalers
-│   ├── hoep_quantile_q_10.keras     # Neural network (10th percentile)
-│   ├── hoep_quantile_q_50.keras     # Neural network (median)
-│   ├── hoep_quantile_q_90.keras     # Neural network (90th percentile)
-│   ├── hoep_xgb_model.pkl           # XGBoost point forecast model
-│   ├── quantile_config.json         # Metadata for loading quantile models
-│   ├── quantile_feature_scaler.pkl  # Scaler used during training
-│   └── train_xgboost.py             # XGBoost training script (not part of live system)
-│
-├── scripts/                         
-│   └── download_weather_data.py     # Downloads historical weather data
-│
-├── data/                            # ⛔ gitignored during version control
-│   ├── raw/
-│   │   ├── weather/                 # Open-Meteo CSVs
-│   │   └── ...                      # HOEP and demand reports (2013–2025)
-│   └── hoep_buffer.csv              # Most recent sample for live prediction
-│
-├── assets/                          # Visuals used in README
-│   ├── 80thpercentile.png           # Actual vs q50 + 80% prediction band
-│   └── comparisons.png              # q50 vs HOEP vs IESO Hour-1 Predispatch
-│
-└── tests/
-    ├── test_baseline_rmse.py        # Compares model vs IESO RMSE baseline
-    └── test_data_features.py        # Validates merged features and missing data
-
+Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models → GitHub → Streamlit Dashboard
 ```
 
-## 📈 Model Comparison
+### Key Components
 
-```
-RMSE Performance (Lower is Better):
-   
-IESO Predispatch  ████████████████████ 39.5 CAD/MWh
-XGBoost Baseline  ███████████████████  34.4 CAD/MWh  
-Our Model (q_50)  ████████████████     33.8 CAD/MWh ⭐
-                  
-Improvement:      +14% vs Industry | +2% vs XGBoost + Uncertainty
-```
+**Data Pipeline**
+- **IESO APIs**: Real-time electricity demand, zonal pricing, market data
+- **Weather Integration**: Open-Meteo API for Toronto conditions
+- **Feature Engineering**: 31 features including lags, rolling averages, temporal encoding
+
+**Machine Learning Models**
+- **Quantile Regression**: Separate neural networks for Q10, Q50, Q90 predictions
+- **Custom Loss Functions**: Asymmetric quantile loss for uncertainty quantification
+- **Training Data**: 10+ years of historical HOEP, demand, and weather data
+
+**Production Infrastructure**
+- **Google Cloud Functions**: Serverless execution triggered every hour at 55 minutes
+- **Timing Logic**: Predictions generated after Market Clearing Prices finalize (T+2 forecasting)
+- **Data Persistence**: CSV buffers updated and synced via GitHub for Streamlit consumption
+
+<details>
+<summary>Detailed Implementation Files</summary>
+
+**Core Training Pipeline**
+- `train.py`: Full model training with quantile regression
+- `src/feature_engineering.py`: Lag and rolling window calculations
+- `src/quantile_model.py`: Custom loss functions and model architecture
+
+**Live Prediction System**
+- `cloud_entry/live_prediction.py`: Main prediction pipeline for Cloud Functions
+- `cloud_entry/src/live_fetch.py`: Real-time data collection from APIs
+- `cloud_entry/src/live_engineering.py`: Live feature calculation and scaling
+
+**Web Application**
+- `app/main.py`: Streamlit dashboard with live updates
+- `app/pages/dashboard.py`: Performance analytics and model evaluation
+- `app/pages/manual_prediction.py`: On-demand forecasting interface
+
+</details>
 
 ---
 
-## 🚀 Future Enhancements
+## 📊 Model Performance
 
-- **Multi-horizon**: Extend to 4-hour and day-ahead forecasting
-- **Ensemble**: Combine multiple model architectures
-- **Edge Deployment**: Raspberry Pi benchmarking for distributed forecasting
-- **Additional Features**: Generation mix data, weather from multiple cities
-- **Web Interface**: Interactive dashboard for real-time monitoring
+### Quantile Regression Results
+- **80% Confidence Intervals**: Effective uncertainty quantification for risk management
+- **Coverage Analysis**: Actual prices fall within Q10-Q90 bands ~80% of target time
+- **Median Forecast**: Competitive accuracy with IESO predispatch prices
+- **Real-time Validation**: Continuous performance tracking with live market data
+
+### Training & Validation
+- **Training Period**: 2014-2025 historical data (10+ years)
+- **Time-based Splits**: Chronological train/test to prevent data leakage
+- **Live Performance**: Updated hourly with actual market outcomes
+- **Feature Count**: 31 engineered features after preprocessing
 
 ---
 
-## 📝 Research Applications
+## 🔮 Future Enhancements
 
-This work addresses key gaps in electricity price forecasting literature:
-- Most papers ignore deployment constraints (data availability, latency)
-- Few provide uncertainty quantification beyond point forecasts
-- Limited focus on real-time performance vs offline accuracy
+### Model Improvements
+- **Feature Selection**: Remove noisy variables identified in ongoing research
+- **Architecture Optimization**: Explore ensemble methods and alternative quantile approaches
+- **Multi-Horizon**: Extend to 6, 12, and 24-hour forecasts
 
-**Potential Publications**: Applied Energy, Energy and AI, IEEE Power & Energy Society conferences
+### System Enhancements  
+- **API Development**: RESTful endpoints for external integration
+- **Enhanced Monitoring**: MLOps pipeline with model drift detection
+- **Real-time Updates**: Online learning capabilities with streaming data
 
+---
+
+## 🛠️ Development Setup
+
+<details>
+<summary>For Contributors: Local Development</summary>
+
+### Prerequisites
+- Python 3.10+
+- Google Cloud Account
+- Git
+
+### Local Setup
+```bash
+git clone <your-repo-url>
+cd hoep_forecasting_app
+pip install -r requirements.txt
+streamlit run app/main.py
+```
+
+### Model Training
+```bash
+python train.py  # Full retraining pipeline
+python tests/test_baseline_rmse.py  # Performance validation
+```
+
+### Cloud Function Deployment
+1. Deploy `cloud_entry/` directory to Google Cloud Functions
+2. Set up Cloud Scheduler for hourly triggers at 55 minutes
+3. Configure GitHub token for CSV repository updates
+
+</details>
+
+---
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+---
+
+## 🙏 Acknowledgments
+
+- **IESO**: Independent Electricity System Operator for real-time market data
+- **Open-Meteo**: Weather API for current conditions  
+- **Environment Canada**: Historical weather datasets
+- **Google Cloud**: Serverless infrastructure for automated predictions
+- **Streamlit**: Rapid ML application deployment
+
+---
+
+## 📞 Contact
+
+- **Live Application**: [Ontario Electricity Forecasting](https://ontarioelectricityforecasting.streamlit.app/)
+- **Project Repository**: [GitHub](https://github.com/yourusername/hoep_forecasting_app)
+
+---
+
+*Research-driven electricity price forecasting with production deployment*
