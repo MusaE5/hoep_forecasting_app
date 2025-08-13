@@ -218,7 +218,7 @@ hoep_df = pd.read_csv(BUFFER_PATH)
 hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
 hoep_df = hoep_df.tail(24)
 
-st.markdown("### Ontario Zonal Price Trends")
+st.markdown("### Ontario Zonal Price Trends (CAD/MWh)")
 import plotly.graph_objects as go
 fig = go.Figure()
 fig.add_trace(go.Scatter(
