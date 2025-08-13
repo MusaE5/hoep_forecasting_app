@@ -1,6 +1,6 @@
 # HOEP Forecasting App ⚡
 
-A real-time electricity price forecasting application for Ontario's Hourly Ontario Energy Price (HOEP) using machine learning and live data integration.
+A real-time electricity price forecasting application for the Hourly Ontario Energy Price (HOEP) using machine learning and live data integration.
 
 ---
 
