@@ -21,20 +21,21 @@ def quantile_loss(q):
 
 
 #  Model Builders
-def create_multi_quantile_model(input_shape, quantiles=quantiles):
+def create_single_quantile_model(input_shape, q):
+    """Create a model for a single quantile"""
     model = Sequential([
         Input(shape=(input_shape,)),
         Dense(128),
-        LeakyReLU(alpha=0.01),
+        LeakyReLU(negative_slope=0.01),
         Dropout(0.2),
         Dense(64),
-        LeakyReLU(alpha=0.01),
+        LeakyReLU(negative_slope=0.01),
         Dropout(0.2),
         Dense(32),
-        LeakyReLU(alpha=0.01),
-        Dense(len(quantiles), activation='linear')
+        LeakyReLU(negative_slope=0.01),
+        Dense(1, activation='linear')  # Single output for one quantile
     ])
-    model.compile(optimizer=Adam(0.001), loss=combined_quantile_loss)
+    model.compile(optimizer=Adam(0.001), loss=quantile_loss(q))
     return model
 
 
