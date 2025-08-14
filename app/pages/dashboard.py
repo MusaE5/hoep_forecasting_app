@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
 from datetime import datetime
-import time
+
 
 # Page config
 st.set_page_config(page_title="Quantile Dashboard", layout="wide")
@@ -12,8 +12,9 @@ st.title(" 24-Hour Forecast vs. Actual HOEP")
 #
 
 try:
-    current_time = int(time.time())
-    df = pd.read_csv(f'cloud_entry/data/chart_buffer.csv?nocache={current_time}')
+    
+    with open('cloud_entry/data/chart_buffer.csv', 'r') as f:
+        df = pd.read_csv(StringIO(f.read()))
 
     # Convert datetime columns
     df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'], errors='coerce')
