@@ -2,10 +2,9 @@ import streamlit as st
 from datetime import datetime, timedelta
 import pandas as pd
 import pytz
+import time
 
-# To prevent streamlit from getting stuck
-st.cache_data.clear()
-st.cache_resource.clear()
+
 # Page configuration
 st.set_page_config(
     page_title="HOEP Forecasting App",
@@ -64,8 +63,10 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
+
+current_time = int(time.time())
 # Load backend data
-df = pd.read_csv('cloud_entry/data/predictions_log.csv')
+df = pd.read_csv(f'cloud_entry/data/predictions_log.csv?nocache={current_time}') # Trick streamlit into reading a new file 
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
 
@@ -216,8 +217,7 @@ with qa2:
 st.markdown("---")
 
 # Historical chart
-BUFFER_PATH = "cloud_entry/data/hoep_buffer.csv"
-hoep_df = pd.read_csv(BUFFER_PATH)
+hoep_df = pd.read_csv(f'cloud_entry/data/hoep_buffer.csv?nocache={current_time}')
 hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
 hoep_df = hoep_df.tail(24)
 
