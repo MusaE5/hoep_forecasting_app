@@ -136,4 +136,24 @@ if __name__ == "__main__":
     with open(buffer_file, "rb") as f:
         gh_put("cloud_entry/data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
 
+    # Get current main.py content
+    main_py_content = gh_get("app/main.py").decode()
+
+    # Add timestamp comment at the top (always works)
+    timestamp_line = f"# Last data update: {toronto_now.strftime('%Y-%m-%d %H:%M:%S')}" 
+
+    # Check if timestamp line already exists
+    if "# Last data update:" in main_py_content:
+        # Replace existing timestamp
+        lines = main_py_content.split('\n')
+        for i, line in enumerate(lines):
+            if line.startswith("# Last data update:"):
+                lines[i] = timestamp_line
+                break
+        updated_content = '\n'.join(lines)
+    else:
+        # Add timestamp at the top
+        updated_content = timestamp_line + '\n' + main_py_content
+
+    gh_put("app/main.py", updated_content.encode(), "Update timestamp to trigger refresh")     # Will force streamlit to refresh so it doesnt get stuck
     print(" Predictions updated and pushed to GitHub.")
