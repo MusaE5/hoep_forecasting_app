@@ -53,7 +53,7 @@ The live application provides:
 
 ### System Overview
 ```
-Google Cloud Scheduler → Cloud Function → Live Data APIs → Quantile Models → GitHub → Streamlit Dashboard
+Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Quantile Models → GitHub → Streamlit Dashboard
 ```
 
 ### Key Components
