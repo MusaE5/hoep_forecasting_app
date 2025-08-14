@@ -3,6 +3,8 @@ from datetime import datetime, timedelta
 import pandas as pd
 import pytz
 import time
+from io import StringIO
+
 
 
 # Page configuration
@@ -63,10 +65,11 @@ h1, h2, h3 {
 </style>
 """, unsafe_allow_html=True)
 
-
-current_time = int(time.time())
 # Load backend data
-df = pd.read_csv(f'cloud_entry/data/predictions_log.csv?nocache={current_time}') # Trick streamlit into reading a new file 
+with open('cloud_entry/data/predictions_log.csv', 'r') as f:
+    df = pd.read_csv(StringIO(f.read()))
+
+
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
 
@@ -217,7 +220,9 @@ with qa2:
 st.markdown("---")
 
 # Historical chart
-hoep_df = pd.read_csv(f'cloud_entry/data/hoep_buffer.csv?nocache={current_time}')
+with open('cloud_entry/data/hoep_buffer.csv', 'r') as f:
+    hoep_df = pd.read_csv(StringIO(f.read()))
+    
 hoep_df['timestamp'] = pd.to_datetime(hoep_df['timestamp'])
 hoep_df = hoep_df.tail(24)
 
