@@ -6,7 +6,7 @@ import joblib
 import pytz
 import sys
 import os
-import time
+
 
 # Add the repo root to Python path
 repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
@@ -117,8 +117,9 @@ with st.container():
 
     if st.button("Predict Now"):
         with st.spinner("Fetching live data and generating prediction..."):
-            current_time = int(time.time())
-            data_path = f'cloud_entry/data/hoep_buffer.csv?nocache={current_time}'
+            
+            st.cache_data.clear()
+            data_path = 'cloud_entry/data/hoep_buffer.csv'
             df = load_buffer(data_path).tail(23)
 
             live_feat = fetch_live_features_only()
