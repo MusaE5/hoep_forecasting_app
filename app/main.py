@@ -85,8 +85,8 @@ toronto_tz = pytz.timezone('America/Toronto')
 now = datetime.now(toronto_tz)
 
 current_hour = now.replace(minute=0, second=0, microsecond=0)
-next_prediction_time = current_hour.replace(minute=56)
-if now.minute >= 56:
+next_prediction_time = current_hour.replace(minute=59, second=59)
+if now.minute >= 59:
     next_prediction_time += timedelta(hours=1)
 
 target_start = (next_prediction_time.replace(minute=0) + timedelta(hours=2)).strftime('%H:%M')
