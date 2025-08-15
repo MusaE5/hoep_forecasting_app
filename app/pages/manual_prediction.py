@@ -13,11 +13,6 @@ repo_root = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 sys.path.insert(0, repo_root)
 
 
-from cloud_entry.src.live_engineering import load_scaler,calculate_features, process_new_data
-from cloud_entry.src.live_fetch import fetch_live_features_only
-from cloud_entry.src.quantile_model import quantile_loss, load_quantile_models
-
-
 # Page Configuration
 
 st.set_page_config(page_title="Manual Prediction", page_icon="⚡", layout="wide", initial_sidebar_state="collapsed")
@@ -117,6 +112,12 @@ with st.container():
 
     if st.button("Predict Now"):
         with st.spinner("Fetching live data and generating prediction..."):
+
+            # Import when button is clicked for faster page loading
+            from cloud_entry.src.live_engineering import load_scaler,calculate_features, process_new_data
+            from cloud_entry.src.live_fetch import fetch_live_features_only
+            from cloud_entry.src.quantile_model import quantile_loss, load_quantile_models
+
             
             with open('cloud_entry/data/hoep_buffer.csv', 'r') as f:
                 df = pd.read_csv(StringIO(f.read())).tail(23)
