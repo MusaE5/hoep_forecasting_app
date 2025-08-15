@@ -64,8 +64,31 @@ if __name__ == "__main__":
             f.write(content)
 
     # Step 1: Fetch and append live HOEP/weather data
-    feat = fetch_and_store()
-    actual_hoep = feat['zonal_price'] if feat is not None else None        
+     # Step 1: Fetch and append live HOEP/weather data
+    feat = None
+    max_retries = 3
+    retry_delay = 30  # seconds
+
+    for attempt in range(max_retries):
+        try:
+            print(f" Attempt {attempt + 1}/{max_retries} to fetch live data")
+            feat = fetch_and_store()
+            if feat is not None:
+                print("✅ Successfully fetched live data")
+                break
+            else:
+                print(f" Attempt {attempt + 1} failed ")
+        except Exception as e:
+            print("Failed with error")
+    
+    if attempt < max_retries - 1:  # Don't sleep on last attempt
+        print(f" Waiting {retry_delay} seconds before retry")
+        time.sleep(retry_delay)
+
+# Check if we got data after all retries
+    if feat is None:
+        print(" All retry attempts failed") # If APIs fail, skip this hours prediction
+        exit()        
 
     # Step 3: Load buffer & prepare features
     buffer_file = os.path.join(TMP, "hoep_buffer.csv")
