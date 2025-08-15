@@ -9,13 +9,14 @@ from tensorflow.keras.models import load_model
 from src.quantile_model import quantile_loss, load_quantile_models
 from src.live_fetch import fetch_and_store
 from src.live_engineering import load_buffer, calculate_features, process_new_data
+import time
 
 # Set timezone
 TORONTO_TZ = pytz.timezone('America/Toronto')
 
 # GitHub repo info
 REPO = "MusaE5/hoep_forecasting_app"
-BRANCH = "main"
+BRANCH = "data-branch"
 GH_API = "https://api.github.com"
 
 def gh_headers():
@@ -35,7 +36,7 @@ def gh_put(path_in_repo: str, local_bytes: bytes, message: str):
     """Upload/update a file in GitHub repo."""
     url = f"{GH_API}/repos/{REPO}/contents/{path_in_repo}"
     sha = None
-    existing = requests.get(url, headers=gh_headers(), timeout=30)
+    existing = requests.get(url + f"?ref={BRANCH}", headers=gh_headers(), timeout=30)  # Add ?ref={BRANCH}
     if existing.status_code == 200:
         sha = existing.json()["sha"]
 
@@ -64,7 +65,6 @@ if __name__ == "__main__":
             f.write(content)
 
     # Step 1: Fetch and append live HOEP/weather data
-     # Step 1: Fetch and append live HOEP/weather data
     feat = None
     max_retries = 3
     retry_delay = 30  # seconds
@@ -77,9 +77,9 @@ if __name__ == "__main__":
                 print("✅ Successfully fetched live data")
                 break
             else:
-                print(f" Attempt {attempt + 1} failed ")
+                print(f"❌ Attempt {attempt + 1} failed ")
         except Exception as e:
-            print("Failed with error")
+            print(f"❌ Attempt {attempt + 1} failed with error: {e}")
     
     if attempt < max_retries - 1:  # Don't sleep on last attempt
         print(f" Waiting {retry_delay} seconds before retry")
@@ -87,8 +87,10 @@ if __name__ == "__main__":
 
 # Check if we got data after all retries
     if feat is None:
-        print(" All retry attempts failed") # If APIs fail, skip this hours prediction
-        exit()        
+        print("❌ All retry attempts failed")
+        exit()
+
+    actual_hoep = feat['zonal_price'] if feat is not None else None        
 
     # Step 3: Load buffer & prepare features
     buffer_file = os.path.join(TMP, "hoep_buffer.csv")
@@ -141,7 +143,10 @@ if __name__ == "__main__":
         if col in chart_entry and pd.notna(chart_entry[col]):
             chart_entry[col] = round(float(chart_entry[col]), 2)
 
-    chart_df = pd.concat([chart_df, pd.DataFrame([chart_entry])], ignore_index=True)
+    
+    if not pd.DataFrame([chart_entry]).empty and not pd.DataFrame([chart_entry]).isna().all().all():
+        chart_df = pd.concat([chart_df, pd.DataFrame([chart_entry])], ignore_index=True)
+
     chart_df = chart_df.tail(26).reset_index(drop=True)
 
     if len(chart_df) >= 3 and actual_hoep is not None:
@@ -158,25 +163,5 @@ if __name__ == "__main__":
 
     with open(buffer_file, "rb") as f:
         gh_put("cloud_entry/data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
-
-    # Get current main.py content
-    main_py_content = gh_get("app/main.py").decode()
-
-    # Add timestamp comment at the top (always works)
-    timestamp_line = f"# Last data update: {toronto_now.strftime('%Y-%m-%d %H:%M:%S')}" 
-
-    # Check if timestamp line already exists
-    if "# Last data update:" in main_py_content:
-        # Replace existing timestamp
-        lines = main_py_content.split('\n')
-        for i, line in enumerate(lines):
-            if line.startswith("# Last data update:"):
-                lines[i] = timestamp_line
-                break
-        updated_content = '\n'.join(lines)
-    else:
-        # Add timestamp at the top
-        updated_content = timestamp_line + '\n' + main_py_content
-
-    gh_put("app/main.py", updated_content.encode(), "Update timestamp to trigger refresh")     # Will force streamlit to refresh so it doesnt get stuck
+  
     print(" Predictions updated and pushed to GitHub.")
