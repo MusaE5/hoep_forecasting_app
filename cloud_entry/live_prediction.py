@@ -15,7 +15,7 @@ TORONTO_TZ = pytz.timezone('America/Toronto')
 
 # GitHub repo info
 REPO = "MusaE5/hoep_forecasting_app"
-BRANCH = "main"
+BRANCH = "data-branch"
 GH_API = "https://api.github.com"
 
 def gh_headers():
