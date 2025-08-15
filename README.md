@@ -16,7 +16,7 @@ The research-to-production pipeline demonstrates end-to-end deployment of machin
 
 ## 🚀 Live Demo
 
-**Try it now**: [Ontario Electricity Forecasting App](https://ontario-electricity-forecasting.up.railway.app)
+**Try it now**: [Ontario Electricity Forecasting App](https://hoep-forecasting-app.onrender.com/)
 
 The live application provides:
 - Real-time price forecasts with uncertainty quantification
