@@ -16,6 +16,12 @@ try:
     
     with open('cloud_entry/data/chart_buffer.csv', 'r') as f:
         df = pd.read_csv(StringIO(f.read()))
+        
+    # Sort for rare edge case
+    df[['pred_q10', 'pred_q50', 'pred_q90']] = np.sort(
+        df[['pred_q10', 'pred_q50', 'pred_q90']], 
+        axis=1
+    )
 
     # Convert datetime columns
     df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'], errors='coerce')
