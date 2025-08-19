@@ -138,6 +138,9 @@ with st.container():
                 'q50': models['q50'].predict(scaled_features, verbose=0)[0][0],
                 'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
             }
+            
+            sorted_quantiles = sorted([predictions['q10'], predictions['q50'], predictions['q90']])
+            predictions['q10'], predictions['q50'], predictions['q90'] = sorted_quantiles
 
             st.success("Prediction complete.")
     st.markdown("</div>", unsafe_allow_html=True)
