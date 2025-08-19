@@ -5,6 +5,7 @@ import pandas as pd
 import pytz
 import time
 from io import StringIO
+import numpy as np
 
 
 # Page configuration
