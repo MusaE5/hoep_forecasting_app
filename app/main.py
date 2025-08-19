@@ -69,6 +69,12 @@ h1, h2, h3 {
 with open('cloud_entry/data/predictions_log.csv', 'r') as f:
     df = pd.read_csv(StringIO(f.read()))
 
+# Sort each row's quantiles to ensure q10 <= q50 <= q90
+# Handle rare edge case
+df[['pred_q10', 'pred_q50', 'pred_q90']] = np.sort(
+    df[['pred_q10', 'pred_q50', 'pred_q90']], 
+    axis=1
+)
 
 df['predicted_for_hour'] = pd.to_datetime(df['predicted_for_hour'])
 df['timestamp_predicted_at'] = pd.to_datetime(df['timestamp_predicted_at'])
