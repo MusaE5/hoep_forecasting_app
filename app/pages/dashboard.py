@@ -64,7 +64,7 @@ fig.add_trace(go.Scatter(
     hoverinfo='skip',
     name='q90',
 ))
-fig.add_trace(go.ScatteR(
+fig.add_trace(go.Scatter(
     x=df['predicted_for_hour'],
     y=df['pred_q10'],
     mode='lines',
