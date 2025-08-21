@@ -76,35 +76,48 @@ h1, h2, h3 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-/* Fix button styling */
-.stButton > button {
+/* --- REPLACED BUTTON STYLES (fix white buttons) --- */
+.stButton button,
+button[data-testid="baseButton-secondary"],
+button[data-testid="baseButton-primary"],
+button[kind] {
+    background: var(--accent2) !important;
     background-color: var(--accent2) !important;
     color: black !important;
     font-weight: 600 !important;
     border-radius: 50px !important;
     border: none !important;
+    box-shadow: none !important;
     padding: 0.5rem 1.5rem !important;
     width: 100% !important;
 }
 
-.stButton > button:hover {
+.stButton button:hover,
+button[data-testid="baseButton-secondary"]:hover,
+button[data-testid="baseButton-primary"]:hover,
+button[kind]:hover {
+    background: #04b184 !important;
     background-color: #04b184 !important;
     color: black !important;
-    border: none !important;
 }
 
-.stButton > button:focus {
-    background-color: var(--accent2) !important;
+.stButton button:active,
+button[data-testid="baseButton-secondary"]:active,
+button[data-testid="baseButton-primary"]:active,
+button[kind]:active {
+    background: #04b184 !important;
+    background-color: #04b184 !important;
     color: black !important;
-    border: none !important;
+}
+
+.stButton button:focus,
+button[data-testid="baseButton-secondary"]:focus,
+button[data-testid="baseButton-primary"]:focus,
+button[kind]:focus {
+    outline: none !important;
     box-shadow: none !important;
 }
-
-.stButton > button:active {
-    background-color: #04b184 !important;
-    color: black !important;
-    border: none !important;
-}
+/* --- END REPLACED BUTTON STYLES --- */
 
 /* Fix expander styling */
 .streamlit-expanderHeader {
