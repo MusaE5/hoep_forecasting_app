@@ -8,17 +8,67 @@ from io import StringIO
 # Page config
 st.set_page_config(page_title="Quantile Dashboard", layout="wide")
 
-# Dark background CSS + metric contrast fix
+# Dark background CSS + sidebar + button + metric fix
 st.markdown("""
 <style>
 :root {
     --bg: #121418;
+    --card-bg: #1e2027;
     --fg: #f5f5f5;
+    --accent1: #FFD166; /* gold */
+    --accent2: #06D6A0; /* teal */
+    --accent3: #EF476F; /* red/pink */
     --muted: #a0a0a0;
 }
+
+/* App + header + main */
 .stApp { background-color: var(--bg) !important; color: var(--fg) !important; }
 header[data-testid="stHeader"] { background-color: var(--bg) !important; }
 .main .block-container { background-color: var(--bg) !important; color: var(--fg) !important; }
+
+/* Sidebar (match main + manual) */
+section[data-testid="stSidebar"] {
+    background-color: var(--bg) !important;
+    color: var(--fg) !important;
+}
+section[data-testid="stSidebar"] a { color: var(--fg) !important; }
+section[data-testid="stSidebar"] a[aria-current="page"] {
+    background-color: var(--card-bg) !important;
+    border-radius: 8px !important;
+    color: var(--accent2) !important;
+}
+section[data-testid="stSidebar"] a:hover {
+    background-color: var(--card-bg) !important;
+    color: var(--accent2) !important;
+    border-radius: 8px !important;
+}
+section[data-testid="stSidebar"] * {
+    color: var(--fg) !important;
+    opacity: 1 !important;
+}
+
+/* Teal button styling */
+.stButton button,
+button[data-testid="baseButton-secondary"],
+button[data-testid="baseButton-primary"],
+button[kind] {
+    background: var(--accent2) !important;
+    background-color: var(--accent2) !important;
+    color: black !important;
+    font-weight: 600 !important;
+    border-radius: 50px !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.5rem 1.5rem !important;
+}
+.stButton button:hover,
+button[data-testid="baseButton-secondary"]:hover,
+button[data-testid="baseButton-primary"]:hover,
+button[kind]:hover {
+    background: #04b184 !important;
+    background-color: #04b184 !important;
+    color: black !important;
+}
 
 /* Make Streamlit metrics readable on dark */
 [data-testid="stMetricLabel"],
@@ -30,7 +80,7 @@ header[data-testid="stHeader"] { background-color: var(--bg) !important; }
 </style>
 """, unsafe_allow_html=True)
 
-st.title(" 24-Hour Forecast vs. Actual HOEP")
+st.title("24-Hour Forecast vs. Actual HOEP")
 
 try:
     with open('cloud_entry/data/chart_buffer.csv', 'r') as f:
@@ -96,7 +146,7 @@ fig.add_trace(go.Scatter(
     hovertemplate="Hour: %{x}<br>Actual: $%{y:.2f}<extra></extra>"
 ))
 
-#  Dark layout 
+# Dark layout 
 fig.update_layout(
     margin=dict(l=20, r=20, t=30, b=20),
     height=700,
@@ -122,14 +172,13 @@ fig.update_layout(
         linecolor="rgba(255,255,255,0.20)",
         tickfont=dict(color="#f5f5f5"),
         title_font=dict(color="#f5f5f5"),
-    ),
-    # NOTE: intentionally no Plotly template here
+    )
 )
 
 st.plotly_chart(fig, use_container_width=True)
 
 # Performance Metrics
-st.markdown("###  Model Performance Metrics")
+st.markdown("### Model Performance Metrics")
 coverage = ((df['actual_hoep'] >= df['pred_q10']) & (df['actual_hoep'] <= df['pred_q90'])).mean()
 mae = np.abs(df['actual_hoep'] - df['pred_q50']).mean()
 col1, col2 = st.columns(2)
