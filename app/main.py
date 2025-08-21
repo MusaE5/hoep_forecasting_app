@@ -145,15 +145,12 @@ button[kind]:focus {
 }
 
 /* Fix expander styling */
-.streamlit-expanderHeader {
+.streamlit-expanderHeader,
+.streamlit-expanderHeader[aria-expanded="true"],
+.streamlit-expanderHeader[aria-expanded="true"]:not(:hover) {
     background-color: var(--card-bg) !important;
     color: var(--fg) !important;
     border-radius: 6px !important;
-}
-
-.streamlit-expanderHeader[aria-expanded="true"] {
-    background-color: var(--card-bg) !important;
-    color: var(--fg) !important;
 }
 
 .streamlit-expanderContent {
