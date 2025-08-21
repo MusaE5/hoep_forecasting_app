@@ -71,6 +71,14 @@ section[data-testid="stSidebar"] a:hover {
     border-radius: 8px !important;
 }
 
+/* Un-fade sidebar tabs */
+section[data-testid="stSidebar"] a,
+section[data-testid="stSidebar"] [role="listitem"],
+section[data-testid="stSidebar"] * {
+    color: var(--fg) !important;
+    opacity: 1 !important;
+}
+
 h1, h2, h3 {
     font-weight: 700;
     color: var(--fg) !important;
@@ -138,7 +146,13 @@ button[kind]:focus {
 
 /* Fix expander styling */
 .streamlit-expanderHeader {
-    background-color: transparent !important;
+    background-color: var(--card-bg) !important;
+    color: var(--fg) !important;
+    border-radius: 6px !important;
+}
+
+.streamlit-expanderHeader[aria-expanded="true"] {
+    background-color: var(--card-bg) !important;
     color: var(--fg) !important;
 }
 
