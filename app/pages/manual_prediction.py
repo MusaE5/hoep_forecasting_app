@@ -31,46 +31,90 @@ st.markdown("""
     --accent3: #EF476F; /* red/pink */
     --muted: #a0a0a0;
 }
-.stApp { background-color: var(--bg); color: var(--fg); font-family: "Segoe UI", Arial, sans-serif; }
-h1, h2, h3, h4 { color: var(--fg); font-weight: 700; }
 
+/* App + header + main */
+.stApp { background-color: var(--bg) !important; color: var(--fg) !important; font-family: "Segoe UI", Arial, sans-serif; }
+header[data-testid="stHeader"] { background-color: var(--bg) !important; }
+.main .block-container { background-color: var(--bg) !important; color: var(--fg) !important; }
+
+/* Sidebar (match main.py) */
+section[data-testid="stSidebar"] { background-color: var(--bg) !important; color: var(--fg) !important; }
+section[data-testid="stSidebar"] a { color: var(--fg) !important; }
+section[data-testid="stSidebar"] a[aria-current="page"] {
+    background-color: var(--card-bg) !important;
+    border-radius: 8px !important;
+    color: var(--accent2) !important;
+}
+section[data-testid="stSidebar"] a:hover {
+    background-color: var(--card-bg) !important;
+    color: var(--accent2) !important;
+    border-radius: 8px !important;
+}
+/* Prevent faded labels in sidebar */
+section[data-testid="stSidebar"] a,
+section[data-testid="stSidebar"] [role="listitem"],
+section[data-testid="stSidebar"] * {
+    color: var(--fg) !important;
+    opacity: 1 !important;
+}
+
+/* Headings */
+h1, h2, h3, h4 { color: var(--fg) !important; font-weight: 700; }
+
+/* Cards / misc (keep your look) */
 .section-title { font-size: 2rem; font-weight: 800; margin: 0 0 0.75rem 0; }
 .muted { color: var(--muted); }
-
-.card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 1.25rem 1.5rem;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.30);
-}
-
+.card { background: var(--card-bg); border-radius: 10px; padding: 1.25rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.30); }
 .hr { height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent); margin: 1.25rem 0; border: 0; }
-
-.stButton > button {
-    background: linear-gradient(90deg, #FFD166, #EF476F);
-    color: #111;
-    border: none;
-    border-radius: 10px;
-    padding: 0.60rem 1.25rem;
-    font-weight: 700;
-    transition: transform 120ms ease, box-shadow 120ms ease;
-}
-.stButton > button:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(239,71,111,0.25); }
-
 .big-number { font-size: 3.6rem; font-weight: 800; color: var(--accent1); line-height: 1.05; margin: 0.25rem 0; }
 .band-label { font-size: 1.05rem; font-weight: 700; margin-top: 0.5rem; }
 .band-values { font-size: 1.3rem; font-weight: 700; }
 .q10 { color: var(--accent2); }
 .q90 { color: var(--accent3); }
-
-.metric-card {
-    background: var(--card-bg);
-    border-radius: 10px;
-    padding: 1rem 1.25rem;
-    border-left: 4px solid rgba(255,255,255,0.06);
-}
+.metric-card { background: var(--card-bg); border-radius: 10px; padding: 1rem 1.25rem; border-left: 4px solid rgba(255,255,255,0.06); }
 .metric-label { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.15rem; }
 .metric-value { font-size: 1.35rem; font-weight: 800; }
+
+/* Teal buttons like main.py (replace gradient) */
+.stButton button,
+button[data-testid="baseButton-secondary"],
+button[data-testid="baseButton-primary"],
+button[kind] {
+    background: var(--accent2) !important;
+    background-color: var(--accent2) !important;
+    color: black !important;
+    font-weight: 700 !important;
+    border-radius: 10px !important; /* keep your squarer button tone here */
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0.60rem 1.25rem !important;
+    transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.stButton button:hover,
+button[data-testid="baseButton-secondary"]:hover,
+button[data-testid="baseButton-primary"]:hover,
+button[kind]:hover {
+    background: #04b184 !important;
+    background-color: #04b184 !important;
+    color: black !important;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(4,177,132,0.25);
+}
+.stButton button:active,
+button[data-testid="baseButton-secondary"]:active,
+button[data-testid="baseButton-primary"]:active,
+button[kind]:active {
+    background: #04b184 !important;
+    background-color: #04b184 !important;
+    color: black !important;
+}
+.stButton button:focus,
+button[data-testid="baseButton-secondary"]:focus,
+button[data-testid="baseButton-primary"]:focus,
+button[kind]:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
