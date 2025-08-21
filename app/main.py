@@ -48,9 +48,27 @@ header[data-testid="stHeader"] {
     color: var(--fg) !important;
 }
 
-/* Fix sidebar if it appears */
-.css-1d391kg, .css-1cypcdb {
+/* Fix sidebar (background + nav links) */
+section[data-testid="stSidebar"] {
     background-color: var(--bg) !important;
+    color: var(--fg) !important;
+}
+
+section[data-testid="stSidebar"] a {
+    color: var(--fg) !important;
+}
+
+section[data-testid="stSidebar"] a[aria-current="page"] {
+    background-color: var(--card-bg) !important;
+    border-radius: 8px !important;
+    color: var(--accent2) !important;
+}
+
+/* Optional hover effect */
+section[data-testid="stSidebar"] a:hover {
+    background-color: var(--card-bg) !important;
+    color: var(--accent2) !important;
+    border-radius: 8px !important;
 }
 
 h1, h2, h3 {
@@ -76,7 +94,7 @@ h1, h2, h3 {
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
-/* --- REPLACED BUTTON STYLES (fix white buttons) --- */
+/* Button theming (robust selectors) */
 .stButton button,
 button[data-testid="baseButton-secondary"],
 button[data-testid="baseButton-primary"],
@@ -117,7 +135,6 @@ button[kind]:focus {
     outline: none !important;
     box-shadow: none !important;
 }
-/* --- END REPLACED BUTTON STYLES --- */
 
 /* Fix expander styling */
 .streamlit-expanderHeader {
@@ -143,6 +160,7 @@ button[kind]:focus {
 }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Load backend data
 with open('cloud_entry/data/predictions_log.csv', 'r') as f:
