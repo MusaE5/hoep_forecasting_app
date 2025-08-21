@@ -13,15 +13,9 @@ st.set_page_config(
     page_title="HOEP Forecasting App",
     page_icon="⚡",
     layout="wide",
-    initial_sidebar_state="collapsed",
-    theme={
-        "base": "dark",
-        "primaryColor": "#06D6A0",  # teal
-        "backgroundColor": "#121418",
-        "secondaryBackgroundColor": "#1e2027",
-        "textColor": "#f5f5f5",
-    }
+    initial_sidebar_state="collapsed"
 )
+
 
 # Theme and styling
 st.markdown("""
