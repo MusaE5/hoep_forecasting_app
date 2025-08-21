@@ -28,40 +28,105 @@ st.markdown("""
     --accent3: #EF476F; /* red/pink */
     --muted: #a0a0a0;
 }
+
+/* Force dark theme globally */
 .stApp {
-    background-color: var(--bg);
-    color: var(--fg);
+    background-color: var(--bg) !important;
+    color: var(--fg) !important;
     font-family: "Segoe UI", Arial, sans-serif;
 }
+
+/* Dark header/top bar */
+header[data-testid="stHeader"] {
+    background-color: var(--bg) !important;
+    height: 0px !important;
+}
+
+/* Main content area */
+.main .block-container {
+    background-color: var(--bg) !important;
+    color: var(--fg) !important;
+}
+
+/* Fix sidebar if it appears */
+.css-1d391kg, .css-1cypcdb {
+    background-color: var(--bg) !important;
+}
+
 h1, h2, h3 {
     font-weight: 700;
-    color: var(--fg);
+    color: var(--fg) !important;
 }
+
 .big-number {
     font-size: 4rem;
     font-weight: 800;
     color: var(--accent1);
 }
+
 .muted {
     color: var(--muted);
     font-size: 0.9rem;
 }
+
 .card {
     background-color: var(--card-bg);
     border-radius: 10px;
     padding: 1.5rem;
     box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
-.button-pill button {
-    background-color: var(--accent2);
-    color: black;
-    font-weight: 600;
-    border-radius: 50px;
-    border: none;
-    padding: 0.5rem 1.5rem;
+
+/* Fix button styling */
+.stButton > button {
+    background-color: var(--accent2) !important;
+    color: black !important;
+    font-weight: 600 !important;
+    border-radius: 50px !important;
+    border: none !important;
+    padding: 0.5rem 1.5rem !important;
+    width: 100% !important;
 }
-.button-pill button:hover {
-    background-color: #04b184;
+
+.stButton > button:hover {
+    background-color: #04b184 !important;
+    color: black !important;
+    border: none !important;
+}
+
+.stButton > button:focus {
+    background-color: var(--accent2) !important;
+    color: black !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.stButton > button:active {
+    background-color: #04b184 !important;
+    color: black !important;
+    border: none !important;
+}
+
+/* Fix expander styling */
+.streamlit-expanderHeader {
+    background-color: transparent !important;
+    color: var(--fg) !important;
+}
+
+.streamlit-expanderContent {
+    background-color: var(--card-bg) !important;
+    color: var(--fg) !important;
+}
+
+/* Fix any other UI elements that might appear light */
+.stSelectbox > div > div {
+    background-color: var(--card-bg) !important;
+    color: var(--fg) !important;
+}
+
+.stTextInput > div > div > input {
+    background-color: var(--card-bg) !important;
+    color: var(--fg) !important;
+    border-color: var(--muted) !important;
 }
 </style>
 """, unsafe_allow_html=True)
