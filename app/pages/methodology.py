@@ -13,7 +13,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-# Theme & Styling 
+# Theme & Styling (keeping exactly as provided)
 st.markdown("""
 <style>
 :root {
@@ -98,13 +98,20 @@ button[kind]:hover {
 </style>
 """, unsafe_allow_html=True)
 
+# --- Header ---
+st.title(" Methodology")
 
-st.title("⚙️ Methodology")
-
-
+# --- 1. DATA PIPELINE SECTION ---
 st.markdown("## Data Pipeline")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
+
+st.markdown("""
+We merge IESO Realtime Totals CSV containing the Hourly Ontario Energy Price (HOEP) with IESO Demand reports 
+containing Ontario Demand. This combined dataset is then merged with Environment Canada historical weather data 
+for Toronto, which includes temperature (°C), humidity (%), and wind speed (km/h). The final dataset contains 
+5 raw variables: HOEP, Ontario Demand, temperature, humidity, and wind speed, spanning 2014-2024 at hourly granularity.
+""")
 
 # Data sources table
 data_sources = pd.DataFrame({
@@ -119,18 +126,20 @@ fig = go.Figure(data=[go.Table(
     header=dict(
         values=list(data_sources.columns),
         fill_color='#06D6A0',
-        font=dict(color='black', size=12),
-        align='left'
+        font=dict(color='black', size=13),
+        align='left',
+        height=35
     ),
     cells=dict(
         values=[data_sources[col] for col in data_sources.columns],
         fill_color='#1e2027',
-        font=dict(color='#f5f5f5'),
-        align='left'
+        font=dict(color='#f5f5f5', size=12),
+        align='left',
+        height=30
     )
 )])
 fig.update_layout(
-    height=200,
+    height=250,
     margin=dict(l=0, r=0, t=0, b=0),
     paper_bgcolor='rgba(0,0,0,0)',
     font=dict(color='#f5f5f5')
@@ -146,31 +155,35 @@ with col2:
 with col3:
     st.metric("Test Set", "2024")
 
-st.caption("*Deployment model retrained on all available data through April 30, 2025 for maximum accuracy*")
+st.caption("*Deployment model retrained on all available data through April 30, 2025*")
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-
+# --- 2. FEATURE ENGINEERING SECTION ---
 st.markdown("## Feature Engineering")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 
 st.markdown("""
-The model uses **31 engineered features** designed to capture temporal patterns and avoid data leakage. 
-A critical design choice: the model predicts the current hour's HOEP (time T) using only information 
-available 2 hours prior (T-2), simulating real-world forecasting constraints.
+We engineer 31 features from the 5 raw variables to predict HOEP 2 hours ahead. We use the most recent 
+available data: current HOEP, demand, temperature, humidity, and wind speed. We also include 1-hour and 
+22-hour historical values (which correspond to 3 hours and 24 hours before the prediction target). 
+Rolling averages are calculated using 3-hour and 23-hour windows from current data. Time features 
+(hour sin/cos, day of year sin/cos, weekend flag) are computed for the prediction target time (T+2). 
+This setup allows us to predict 9:00 HOEP using data available at 7:00.
 """)
 
-# Feature breakdown
+# Feature breakdown table
 feature_breakdown = pd.DataFrame({
-    'Category': ['Time Features', 'Lagged HOEP', 'Lagged Demand', 'Lagged Weather', 'Rolling Averages'],
-    'Count': [6, 3, 3, 9, 10],
-    'Description': [
-        'Hour (sin/cos), Day of year (sin/cos), Weekend flag',
-        'Previous values at 2h, 3h, 24h',
-        'Previous values at 2h, 3h, 24h',
-        'Temp, humidity, wind at 2h, 3h, 24h',
-        '3h and 23h windows for all variables'
+    'Category': ['Time Features', 'Current Values', '1-Hour Lags', '22-Hour Lags', 'Rolling Averages (3h)', 'Rolling Averages (23h)'],
+    'Count': [6, 5, 5, 5, 5, 5],
+    'Features': [
+        'hour_sin, hour_cos, day_sin, day_cos, is_weekend, day_of_year',
+        'HOEP, demand, temp, humidity, wind_speed',
+        'All 5 variables lagged by 1 hour',
+        'All 5 variables lagged by 22 hours', 
+        'Moving averages of all 5 variables',
+        'Moving averages of all 5 variables'
     ]
 })
 
@@ -178,18 +191,20 @@ fig = go.Figure(data=[go.Table(
     header=dict(
         values=['Feature Category', 'Count', 'Description'],
         fill_color='#FFD166',
-        font=dict(color='black', size=12),
-        align='left'
+        font=dict(color='black', size=13),
+        align='left',
+        height=35
     ),
     cells=dict(
         values=[feature_breakdown[col] for col in feature_breakdown.columns],
         fill_color='#1e2027',
-        font=dict(color='#f5f5f5'),
-        align='left'
+        font=dict(color='#f5f5f5', size=12),
+        align='left',
+        height=30
     )
 )])
 fig.update_layout(
-    height=250,
+    height=300,
     margin=dict(l=0, r=0, t=0, b=0),
     paper_bgcolor='rgba(0,0,0,0)',
     font=dict(color='#f5f5f5')
@@ -198,7 +213,7 @@ st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-
+# --- 3. MODEL ARCHITECTURE SECTION ---
 st.markdown("## Model Architecture")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -208,16 +223,16 @@ col1, col2 = st.columns([1, 1])
 with col1:
     st.markdown("### Quantile Neural Networks")
     st.markdown("""
-    Instead of predicting a single point estimate, the system uses **quantile regression** 
-    to predict different percentiles of the price distribution. This provides both a best 
-    estimate and uncertainty bounds.
+    We train three separate neural networks using TensorFlow with quantile regression. Each network 
+    predicts a different percentile of the price distribution:
     
-    **Three separate models trained:**
     - **Q10 Model**: 10th percentile (lower bound)
     - **Q50 Model**: 50th percentile (median forecast)  
     - **Q90 Model**: 90th percentile (upper bound)
     
-    Together, these create an 80% prediction interval that quantifies forecast uncertainty.
+    The 80% prediction interval (Q10 to Q90) captures uncertainty in electricity prices, which is 
+    crucial for anticipating price spikes that can occur due to sudden demand changes or supply 
+    constraints. This helps market participants prepare for both typical prices (Q50) and extreme scenarios.
     """)
 
 with col2:
@@ -239,16 +254,17 @@ with col2:
     """, language="text")
     
     st.markdown("""
-    **Training Details:**
+    **Training Configuration:**
     - Loss: Pinball (quantile-specific)
     - Optimizer: Adam (lr=0.001)
     - Early stopping (patience=5)
     - StandardScaler normalization
+    - Batch size: 32
     """)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-
+# --- 4. PERFORMANCE SECTION ---
 st.markdown("## Model Performance")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -266,7 +282,8 @@ fig.add_trace(go.Bar(
     marker_color=['#06D6A0', '#FFD166'],
     text=models_df['RMSE (CAD/MWh)'],
     textposition='outside',
-    texttemplate='%{text:.2f}'
+    texttemplate='%{text:.2f}',
+    textfont=dict(size=16)
 ))
 
 # Add improvement annotation
@@ -277,17 +294,18 @@ fig.add_annotation(
     arrowhead=2,
     arrowcolor="#06D6A0",
     ax=0,
-    ay=-40,
-    font=dict(color='#06D6A0', size=14)
+    ay=-50,
+    font=dict(color='#06D6A0', size=16)
 )
 
 fig.update_layout(
     title="RMSE Comparison (2024 Test Set)",
+    title_font_size=18,
     yaxis_title="RMSE (CAD/MWh)",
-    height=400,
+    height=500,
     paper_bgcolor='rgba(0,0,0,0)',
     plot_bgcolor='#121418',
-    font=dict(color='#f5f5f5'),
+    font=dict(color='#f5f5f5', size=14),
     yaxis=dict(range=[0, 35])
 )
 fig.update_xaxes(gridcolor='#2a2a2a')
@@ -307,24 +325,22 @@ with col4:
 
 st.markdown("</div>", unsafe_allow_html=True)
 
-
-st.markdown("##Deployment")
+# --- 5. DEPLOYMENT SECTION ---
+st.markdown("## Deployment")
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 
 st.markdown("### Understanding HOEP and Timing Constraints")
 
 st.markdown("""
-The Hourly Ontario Energy Price (HOEP) is calculated as the **average of 12 Market Clearing Prices (MCPs)** 
-collected every 5 minutes throughout each hour. This creates a critical timing constraint for predictions:
+The Hourly Ontario Energy Price (HOEP) is calculated as the average of 12 Market Clearing Prices (MCPs) 
+collected every 5 minutes throughout each hour. MCPs are published at :00, :05, :10, :15, :20, :25, :30, 
+:35, :40, :45, :50, and :55 of each hour. To match the training data structure, we need all 12 MCPs to 
+calculate the true HOEP average. Therefore, predictions must wait until the 55th minute of each hour.
 
-- MCPs are published every 5 minutes (e.g., 7:00, 7:05, 7:10... 7:55)
-- To match training data, we need all 12 MCPs to calculate the true HOEP average
-- Therefore, predictions must wait until the **55th minute** of each hour
-- At 7:55, we have the complete HOEP for hour 7 and can predict for hour 9
-
-The Manual Prediction tab allows forecasts at any time but may be less accurate if triggered before :55, 
-as not all MCPs would be available.
+At 7:55, we have the complete HOEP for hour 7 and can predict for hour 9. The Manual Prediction tab 
+allows forecasts at any time but may be less accurate if triggered before :55, as not all MCPs would 
+be available for the current hour's average.
 """)
 
 st.markdown("</div>", unsafe_allow_html=True)
@@ -333,22 +349,26 @@ st.markdown("<div class='card'>", unsafe_allow_html=True)
 
 st.markdown("### Pipeline Execution Flow")
 
-# Create a better flowchart for pipeline
+# Z-pattern flowchart
 graph = graphviz.Digraph()
-graph.attr(bgcolor='transparent', fontcolor='white')
-graph.attr('node', shape='box', style='filled,rounded', fontcolor='black', fontsize='11')
-graph.attr('edge', color='#f5f5f5')
+graph.attr(bgcolor='transparent', fontcolor='white', rankdir='LR', nodesep='0.8', ranksep='1.2')
+graph.attr('node', shape='box', style='filled,rounded', fontcolor='black', fontsize='12', width='2.5', height='0.8')
+graph.attr('edge', color='#f5f5f5', penwidth='2')
 
-# Define nodes with times and actions
+# Top row (left to right)
 graph.node('trigger', '7:55\nGoogle Cloud Function\nTriggers', fillcolor='#06D6A0')
-graph.node('fetch', '7:55\nFetch Data\n• IESO MCPs & Demand\n• OpenMeteo Weather', fillcolor='#FFD166')
-graph.node('buffer', '7:55-7:56\nUpdate Buffer\n• Append new data\n• Keep last 24 hours', fillcolor='#FFD166')
-graph.node('features', '7:56\nFeature Engineering\n• Create lags (2h, 3h, 24h)\n• Calculate rolling averages', fillcolor='#EF476F')
-graph.node('predict', '7:56\nGenerate Predictions\n• Q10, Q50, Q90 models\n• For hour 9:00-9:59', fillcolor='#EF476F')
-graph.node('store', '7:56\nStore Results\n• Save predictions\n• Update CSV', fillcolor='#1e90ff')
-graph.node('render', '8:00\nStreamlit Updates\n• Render refreshes\n• Display new forecasts', fillcolor='#06D6A0')
+graph.node('fetch', '7:55\nFetch Data\nIESO + OpenMeteo', fillcolor='#FFD166')
+graph.node('buffer', '7:55-7:56\nUpdate Buffer\n24h Rolling Window', fillcolor='#FFD166')
 
-# Connect nodes
+# Middle row (right side)
+graph.node('features', '7:56\nFeature Engineering\n31 Features Created', fillcolor='#EF476F')
+
+# Bottom row (right to left)
+graph.node('predict', '7:56\nGenerate Predictions\nQ10, Q50, Q90', fillcolor='#EF476F')
+graph.node('store', '7:56\nStore Results\nUpdate CSV', fillcolor='#1e90ff')
+graph.node('render', '8:00\nStreamlit Updates\nDisplay Forecasts', fillcolor='#06D6A0')
+
+# Connect in Z pattern
 graph.edge('trigger', 'fetch')
 graph.edge('fetch', 'buffer')
 graph.edge('buffer', 'features')
@@ -359,12 +379,13 @@ graph.edge('store', 'render')
 st.graphviz_chart(graph)
 
 st.markdown("""
-**Key Points:**
-- **Google Cloud Function** executes hourly at :55 via scheduled trigger
-- **Data fetching** includes web scraping IESO real-time data and OpenMeteo API calls
-- **CSV buffer** maintains rolling 24-hour window for feature engineering
-- **Render hosting** automatically updates the Streamlit UI at the top of each hour
-- Entire pipeline completes in ~1 minute, ready for display at :00
+**Pipeline Details:**
+- Google Cloud Function executes hourly at :55 via scheduled trigger
+- Data fetching includes web scraping IESO real-time data and OpenMeteo API calls
+- CSV buffer maintains rolling 24-hour window for feature engineering
+- Three quantile models generate predictions for hour T+2
+- Render hosting automatically updates the Streamlit UI at the top of each hour
+- Entire pipeline completes in approximately 1 minute
 """)
 
 st.markdown("</div>", unsafe_allow_html=True)
@@ -378,9 +399,9 @@ col1, col2 = st.columns([2, 1])
 with col1:
     # System architecture diagram
     arch = graphviz.Digraph()
-    arch.attr(bgcolor='transparent', fontcolor='white', rankdir='TB')
-    arch.attr('node', shape='box', style='filled,rounded', fontcolor='black')
-    arch.attr('edge', color='#f5f5f5')
+    arch.attr(bgcolor='transparent', fontcolor='white', rankdir='TB', nodesep='0.6')
+    arch.attr('node', shape='box', style='filled,rounded', fontcolor='black', fontsize='11')
+    arch.attr('edge', color='#f5f5f5', penwidth='2')
     
     # Data layer
     with arch.subgraph(name='cluster_0') as c:
@@ -397,7 +418,7 @@ with col1:
     # Model layer
     with arch.subgraph(name='cluster_2') as c:
         c.attr(label='ML Models', fontcolor='#f5f5f5', style='rounded', color='#2a2a2a')
-        c.node('models', 'Quantile NNs\nQ10, Q50, Q90', fillcolor='#EF476F')
+        c.node('models', 'TensorFlow\nQuantile NNs', fillcolor='#EF476F')
     
     # Frontend
     arch.node('ui', 'Streamlit App\n(Render.com)', fillcolor='#1e90ff')
@@ -425,7 +446,7 @@ with col2:
     
     **ML Framework:**
     - TensorFlow/Keras
-    - Custom quantile loss
+    - Quantile regression
     - StandardScaler
     
     **Frontend:**
@@ -435,7 +456,7 @@ with col2:
     
     **Data Management:**
     - Rolling CSV buffer
-    - 24-hour data retention
+    - 24-hour retention
     """)
 
 st.markdown("</div>", unsafe_allow_html=True)
