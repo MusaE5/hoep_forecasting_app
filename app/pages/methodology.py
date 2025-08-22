@@ -253,14 +253,6 @@ with col2:
     Dense(1, linear)
     """, language="text")
     
-    st.markdown("""
-    **Training Configuration:**
-    - Loss: Pinball (quantile-specific)
-    - Optimizer: Adam (lr=0.001)
-    - Early stopping (patience=5)
-    - StandardScaler normalization
-    - Batch size: 32
-    """)
 
 st.markdown("</div>", unsafe_allow_html=True)
 
@@ -392,71 +384,4 @@ st.markdown("</div>", unsafe_allow_html=True)
 
 st.markdown("<div class='card'>", unsafe_allow_html=True)
 
-st.markdown("### System Architecture")
 
-col1, col2 = st.columns([2, 1])
-
-with col1:
-    # System architecture diagram
-    arch = graphviz.Digraph()
-    arch.attr(bgcolor='transparent', fontcolor='white', rankdir='TB', nodesep='0.6')
-    arch.attr('node', shape='box', style='filled,rounded', fontcolor='black', fontsize='11')
-    arch.attr('edge', color='#f5f5f5', penwidth='2')
-    
-    # Data layer
-    with arch.subgraph(name='cluster_0') as c:
-        c.attr(label='Data Sources', fontcolor='#f5f5f5', style='rounded', color='#2a2a2a')
-        c.node('ieso', 'IESO\nReal-time Data', fillcolor='#06D6A0')
-        c.node('weather', 'OpenMeteo\nWeather API', fillcolor='#06D6A0')
-    
-    # Processing layer
-    with arch.subgraph(name='cluster_1') as c:
-        c.attr(label='Processing', fontcolor='#f5f5f5', style='rounded', color='#2a2a2a')
-        c.node('gcf', 'Google Cloud\nFunction', fillcolor='#FFD166')
-        c.node('buffer', 'CSV Buffer\n(24h rolling)', fillcolor='#FFD166')
-    
-    # Model layer
-    with arch.subgraph(name='cluster_2') as c:
-        c.attr(label='ML Models', fontcolor='#f5f5f5', style='rounded', color='#2a2a2a')
-        c.node('models', 'TensorFlow\nQuantile NNs', fillcolor='#EF476F')
-    
-    # Frontend
-    arch.node('ui', 'Streamlit App\n(Render.com)', fillcolor='#1e90ff')
-    
-    # Connections
-    arch.edge('ieso', 'gcf')
-    arch.edge('weather', 'gcf')
-    arch.edge('gcf', 'buffer')
-    arch.edge('buffer', 'models')
-    arch.edge('models', 'ui')
-    
-    st.graphviz_chart(arch)
-
-with col2:
-    st.markdown("### Tech Stack")
-    st.markdown("""
-    **Data Collection:**
-    - IESO web scraping
-    - OpenMeteo API
-    
-    **Backend:**
-    - Google Cloud Functions
-    - GitHub Actions (scheduling)
-    - Python 3.x
-    
-    **ML Framework:**
-    - TensorFlow/Keras
-    - Quantile regression
-    - StandardScaler
-    
-    **Frontend:**
-    - Streamlit
-    - Plotly visualizations
-    - Render.com hosting
-    
-    **Data Management:**
-    - Rolling CSV buffer
-    - 24-hour retention
-    """)
-
-st.markdown("</div>", unsafe_allow_html=True)
