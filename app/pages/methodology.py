@@ -377,7 +377,6 @@ st.markdown("""
 - CSV buffer maintains rolling 24-hour window for feature engineering
 - Three quantile models generate predictions for hour T+2
 - Render hosting automatically updates the Streamlit UI at the top of each hour
-- Entire pipeline completes in approximately 1 minute
 """)
 
 st.markdown("</div>", unsafe_allow_html=True)
