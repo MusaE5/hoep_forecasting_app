@@ -335,7 +335,7 @@ with qa2:
 with qa3:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
     st.markdown("<h4 style='color:var(--accent2);'>Methodology</h4>", unsafe_allow_html=True)
-    st.markdown("<p class='muted'>Learn about the full pipeline, from preprocessing -> deployment.</p>", unsafe_allow_html=True)
+    st.markdown("<p class='muted'>Learn about the full pipeline, from preprocessing to deployment.</p>", unsafe_allow_html=True)
     if st.button("View Methodology", key="methodology", help="Open methodology details"):
         st.switch_page("pages/methodology.py")   # make sure you have pages/methodology.py
     st.markdown("</div>", unsafe_allow_html=True)    
