@@ -314,7 +314,7 @@ st.markdown("---")
 
 # Quick actions
 st.markdown("### Quick Actions")
-qa1, qa2 = st.columns(2)
+qa1, qa2, qa3 = st.columns(3)
 
 with qa1:
     st.markdown("<div class='card'>", unsafe_allow_html=True)
@@ -331,6 +331,14 @@ with qa2:
     if st.button("Predict Now", key="manual", help="Run a manual forecast"):
         st.switch_page("pages/manual_prediction.py")
     st.markdown("</div>", unsafe_allow_html=True)
+    
+with qa3:
+    st.markdown("<div class='card'>", unsafe_allow_html=True)
+    st.markdown("<h4 style='color:var(--accent2);'>Methodology</h4>", unsafe_allow_html=True)
+    st.markdown("<p class='muted'>Learn about the data, feature engineering, models, and deployment pipeline.</p>", unsafe_allow_html=True)
+    if st.button("View Methodology", key="methodology", help="Open methodology details"):
+        st.switch_page("pages/methodology.py")   # make sure you have pages/methodology.py
+    st.markdown("</div>", unsafe_allow_html=True)    
 
 st.markdown("---")
 
