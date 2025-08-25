@@ -4,12 +4,14 @@ import requests
 import pandas as pd
 from datetime import timedelta, datetime
 import pytz
+import time
+
 import tensorflow as tf
 from tensorflow.keras.models import load_model
+
 from src.quantile_model import quantile_loss, load_quantile_models
 from src.live_fetch import fetch_and_store
 from src.live_engineering import load_buffer, calculate_features, process_new_data
-import time
 
 # Set timezone
 TORONTO_TZ = pytz.timezone('America/Toronto')
@@ -85,20 +87,20 @@ if __name__ == "__main__":
         print(f" Waiting {retry_delay} seconds before retry")
         time.sleep(retry_delay)
 
-# Check if we got data after all retries
+    # Check if we got data after all retries
     if feat is None:
         print("❌ All retry attempts failed")
         exit()
 
     actual_hoep = feat['zonal_price'] if feat is not None else None        
 
-    # Step 3: Load buffer & prepare features
+    # Step 2: Load buffer & prepare features
     buffer_file = os.path.join(TMP, "hoep_buffer.csv")
     df = load_buffer(buffer_file)
     features_dict = calculate_features(df)
     scaled_features = process_new_data(features_dict)
 
-    # Step 4: Load models & make predictions
+    # Step 3: Load models & make predictions
     models = load_quantile_models()
     predictions = {
         'q10': models['q10'].predict(scaled_features, verbose=0)[0][0],
@@ -106,7 +108,7 @@ if __name__ == "__main__":
         'q90': models['q90'].predict(scaled_features, verbose=0)[0][0]
     }
 
-    # Step 5: Prepare new prediction entry
+    # Step 4: Prepare new prediction entry
     predicted_for = pd.to_datetime(df['timestamp'].iloc[-1]).ceil('h') + timedelta(hours=1)
     toronto_now = datetime.now(TORONTO_TZ)
     new_entry = {
@@ -120,7 +122,6 @@ if __name__ == "__main__":
 
    
     # Update predictions_log.csv
-    
     log_path = os.path.join(TMP, "predictions_log.csv")
     log_df = pd.read_csv(log_path)
 
@@ -164,4 +165,4 @@ if __name__ == "__main__":
     with open(buffer_file, "rb") as f:
         gh_put("cloud_entry/data/hoep_buffer.csv", f.read(), "Update hoep_buffer.csv from Cloud Function")
   
-    print(" Predictions updated and pushed to GitHub.")
+    print("Predictions updated and pushed to GitHub.")
