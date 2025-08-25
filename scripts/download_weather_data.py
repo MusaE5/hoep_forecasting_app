@@ -20,7 +20,7 @@ for city, station_id in CITIES.items():
     output_dir = f"data/raw/weather/{city}"
     os.makedirs(output_dir, exist_ok=True)
 
-    for year in range(2014, 2026):  # 2025 inclusive
+    for year in range(2013, 2026):  # Include 2025
         for month in range(1, 13):
             if year == 2025 and month > 4:
                 break  # Stop after April 2025
@@ -32,7 +32,7 @@ for city, station_id in CITIES.items():
                 print(f"✅ Already exists: {filename}")
                 continue
 
-            print(f"⬇️  Downloading {filename}...")
+            print(f"⬇️ Downloading {filename}...")
 
             params = {
                 "format": FORMAT,
@@ -56,4 +56,4 @@ for city, station_id in CITIES.items():
             except Exception as e:
                 print(f"❌ Failed to download {filename}: {e}")
 
-            sleep(0.4)  # Respectful crawling
+            sleep(0.4)  
