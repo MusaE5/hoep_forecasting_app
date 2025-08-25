@@ -14,7 +14,6 @@ from keras.callbacks import EarlyStopping
 from src.data_loader import load_hoep_and_demand, load_weather, merge_all
 from src.feature_engineering import create_features
 
-
 # Load and merge data
 RAW_HOEP_DIR    = "data/raw"
 RAW_WEATHER_DIR = "data/raw/weather"
@@ -25,9 +24,10 @@ merged_df  = merge_all(hd_df, weather_df)
 full_df    = create_features(merged_df)
 full_df.columns = full_df.columns.str.strip()
 
-# Time based, no Train test split
-df_train = full_df[full_df["timestamp"] < "2024-01-01"]
-df_test  = full_df[full_df["timestamp"] >= "2024-01-01"]
+# Time-based splits
+df_train = full_df[full_df["timestamp"] < "2023-01-01"] # up to 2022
+df_val   = full_df[(full_df["timestamp"] >= "2023-01-01") & (full_df["timestamp"] < "2024-01-01")] # 2023
+df_test  = full_df[full_df["timestamp"] >= "2024-01-01" % (full_df['timestamp'] < '2025-01-01')] # 2024
 
 # Select features
 features = [
@@ -47,23 +47,20 @@ features = [
 
 target = "HOEP"
 
-X_train_raw = df_train[features].apply(pd.to_numeric, errors="coerce")
-y_train     = pd.to_numeric(df_train[target], errors="coerce")
-X_test_raw  = df_test[features].apply(pd.to_numeric, errors="coerce")
-y_test      = pd.to_numeric(df_test[target], errors="coerce")
+X_train_raw = df_train[features]
+y_train     = df_train[target]
+X_val_raw   = df_val[features]
+y_val       = df_val[target]
+X_test_raw  = df_test[features]
+y_test      = df_test[target]
 
-
-# Leak check (See highly correlated features)
-corr_df = pd.concat([X_train_raw, y_train.rename('HOEP')], axis=1).corr()
-print("=== Top Feature Correlations with HOEP ===")
-print(corr_df['HOEP'].abs().sort_values(ascending=False).head(10), "\n")
-
-
+# Scaling
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train_raw)
+X_val   = scaler.transform(X_val_raw)
 X_test  = scaler.transform(X_test_raw)
 
-from src.quantile_model import (train_quantile_models, evaluate_quantile_predictions, save_quantile_models)
+from src.quantile_model import train_quantile_models, evaluate_quantile_predictions, save_quantile_models
 
 quantile_predictions, quantile_models = train_quantile_models(
     X_train, y_train, X_test, y_test
