@@ -9,7 +9,16 @@ def load_scaler():
 
 
 def load_buffer(buffer_file):
-    """Loads existing data buffer"""
+    """ Loads the live data buffer if it exists, otherwise returns an empty DataFrame
+    with the expected schema.
+    
+    Why two returns?
+    - Return 1: If the buffer file exists → load it with pd.read_csv.
+    - Return 2: If it doesn’t exist (e.g., first run, or buffer deleted) → 
+      return an empty DataFrame with the correct columns, so downstream code 
+      can still run without crashing.
+      
+      """
     if os.path.exists(buffer_file):
         return pd.read_csv(buffer_file)
     return pd.DataFrame(columns=[
