@@ -65,19 +65,21 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 
 **Machine Learning Models**
 - **Quantile Regression**: Separate neural networks for Q10, Q50, Q90 predictions
-- **Custom Loss Functions**: Asymmetric quantile loss for uncertainty quantification
+- **Custom Loss Functions**: Asymmetric quantile loss for uncertainty quantification (pinball loss)
 - **Training Data**: 10+ years of historical HOEP, demand, and weather data
 
 **Production Infrastructure**
 - **Google Cloud Functions**: Serverless execution triggered every hour at 55 minutes
 - **Timing Logic**: Predictions generated after Market Clearing Prices finalize (T+2 forecasting)
-- **Data Persistence**: CSV buffers updated and synced via GitHub for Streamlit consumption
+- **Data Persistence**: CSV buffers updated and synced via GitHub for Streamlit consumption 
 
 
 **Core Training Pipeline**
-- `train.py`: Full model training with quantile regression
+- `src/data_loader.py`: Data preprocessing and merging from raw CSVs
 - `src/feature_engineering.py`: Lag and rolling window calculations
 - `src/quantile_model.py`: Custom loss functions and model architecture
+- `train.py`: Full model training with quantile regression
+
 
 **Live Prediction System**
 - `cloud_entry/live_prediction.py`: Main prediction pipeline for Cloud Functions
@@ -88,6 +90,7 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 - `app/main.py`: Streamlit dashboard with live updates
 - `app/pages/dashboard.py`: Performance analytics and model evaluation
 - `app/pages/manual_prediction.py`: On-demand forecasting interface
+- `app/pages/methodology.py`: Deeper dive into data preprocessing, model architecture, and deployment pipeline
 
 </details>
 
@@ -100,6 +103,7 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 - **Hour-2 Predispatch RMSE**: 29.67 CAD/MWh (baseline comparison)
 - **Performance Improvement**: 18.5% lower RMSE than IESO predispatch
 - **Training Period**: 2014-2022, Validation: 2023, Test: 2024
+- Model retrained on all available data (2014-2025) for deployment
   
 ---
 
@@ -109,12 +113,6 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 - **Feature Selection**: Remove noisy variables identified in research
 - **Architecture Optimization**: Explore ensemble methods and alternative quantile approaches
 - **Multi-Horizon**: Extend to 1-6 hour forecasting
-
-### System Enhancements  
-- **API Development**: RESTful endpoints for external integration
-- **Enhanced Monitoring**: MLOps pipeline with model drift detection
-- **Real-time Updates**: Online learning capabilities with streaming data
-
 ---
 
 ## Acknowledgments
