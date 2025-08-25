@@ -52,10 +52,6 @@ def load_hoep_and_demand(raw_dir):
     hoep_df['timestamp'] = hoep_df['Date'] + pd.to_timedelta(hoep_df['Hour'] - 1, unit='h')
     demand_df['timestamp'] = demand_df['Date'] + pd.to_timedelta(demand_df['Hour'] - 1, unit='h')
 
-    
-    hoep_df['HOEP'] = pd.to_numeric(hoep_df['HOEP'], errors='coerce')
-    demand_df['Ontario Demand'] = pd.to_numeric(demand_df['Ontario Demand'], errors='coerce')
-
     # Select columns needed
     hoep_clean = hoep_df[['timestamp', 'HOEP']].copy()
     demand_clean = demand_df[['timestamp', 'Ontario Demand']].copy()
@@ -115,5 +111,7 @@ def load_weather(raw_weather_dir):
 
 def merge_all(hoep_demand_df, weather_df):
     df_merged = hoep_demand_df.join(weather_df, how='left')
+    # Convert all columns to numeric
+    df_merged = df_merged.apply(pd.to_numeric, errors="coerce")
     print(df_merged.head())
     return df_merged
