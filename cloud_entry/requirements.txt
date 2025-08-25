@@ -6,6 +6,6 @@ joblib
 requests
 tensorflow==2.19.0
 keras==3.10.0
-numpy>=1.23,<3.0  # Allow latest NumPy 2.x versions that are compatible
-ml-dtypes  # No strict pin; latest should be fine with TF 2.19
+numpy>=1.23,<3.0  
+ml-dtypes  
 pytz
