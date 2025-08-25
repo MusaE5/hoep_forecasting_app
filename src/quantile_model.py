@@ -52,7 +52,7 @@ def train_quantile_models(X_train, y_train, X_test, y_test):
     return quantile_predictions, quantile_models
 
 # -Save/Load 
-def save_quantile_models(quantile_models, scaler, features_list, model_dir="models"):
+def save_quantile_models(quantile_models, scaler, model_dir="models"):
     os.makedirs(model_dir, exist_ok=True)
     for q_name, model in quantile_models.items():
         model_path = os.path.join(model_dir, f"hoep_quantile_{q_name}.keras")
