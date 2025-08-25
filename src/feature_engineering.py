@@ -4,10 +4,8 @@ import pandas as pd
 def create_features(df, lags=[2,3, 24], roll_windows=[3, 23]):
     """
     Takes the merged DataFrame with raw columns:
-      - timestamp, HOEP,
-      - Hour 1 Predispatch, OR 10 Min Sync, OR 30 Min,
-      - Ontario Demand, Market Demand, temp, humidity, wind_speed
-    Returns a DataFrame with engineered, non-leaky features and no raw measured columns.
+      - timestamp, HOEP, Ontario Demand, Market Demand, temp, humidity, wind_speed
+    Returns a DataFrame with engineered features.
     """
     df = df.copy()
     
@@ -20,7 +18,7 @@ def create_features(df, lags=[2,3, 24], roll_windows=[3, 23]):
     df['doy_sin'] = np.sin(2 * np.pi * df['day_of_year'] / 365)
     df['doy_cos'] = np.cos(2 * np.pi * df['day_of_year'] / 365)
     
-    # Lagged features with no leakage
+    # Lagged features
     for k in lags:
         df[f'demand_lag_{k}']       = df['Ontario Demand'].shift(k)
         df[f'temp_lag_{k}']         = df['temp'].shift(k)
