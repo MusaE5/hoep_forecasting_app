@@ -1,5 +1,4 @@
 import numpy as np 
-import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, LeakyReLU, Dropout, Input
@@ -7,7 +6,6 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 import os
 import joblib
-import json
 
 #  Global Quantiles 
 quantiles = [0.1, 0.5, 0.9]
@@ -60,15 +58,6 @@ def save_quantile_models(quantile_models, scaler, features_list, model_dir="mode
         model_path = os.path.join(model_dir, f"hoep_quantile_{q_name}.keras")
         model.save(model_path)
     joblib.dump(scaler, os.path.join(model_dir, "quantile_feature_scaler.pkl"))
-    config = {
-        'quantiles': quantiles,
-        'model_files': {q_name: f"hoep_quantile_{q_name}.keras" for q_name in quantile_models},
-        'scaler_file': "quantile_feature_scaler.pkl",
-        'features': features_list,
-        'method': 'combined' if 'combined' in quantile_models else 'separate'
-    }
-    with open(os.path.join(model_dir, "quantile_config.json"), 'w') as f:
-        json.dump(config, f, indent=2)
 
 
 
@@ -88,19 +77,4 @@ def evaluate_quantile_predictions(y_true, quantile_predictions):
             'rmse': rmse
         }
     return results
-
-def calculate_prediction_intervals(quantile_predictions, confidence_levels=[0.8]):
-    """Return lower, upper bounds and widths for confidence intervals"""
-    intervals = {}
-    for conf_level in confidence_levels:
-        alpha = 1 - conf_level
-        lower_q = f"q_{int((alpha/2)*100)}"
-        upper_q = f"q_{int((1-alpha/2)*100)}"
-        if lower_q in quantile_predictions and upper_q in quantile_predictions:
-            intervals[f'{int(conf_level * 100)}%'] = {
-                'lower': quantile_predictions[lower_q],
-                'upper': quantile_predictions[upper_q],
-                'width': quantile_predictions[upper_q] - quantile_predictions[lower_q]
-            }
-    return intervals
 
