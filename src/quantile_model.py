@@ -1,5 +1,4 @@
 import numpy as np 
-import matplotlib.pyplot as plt
 import tensorflow as tf
 from tensorflow.keras.models import Sequential, load_model
 from tensorflow.keras.layers import Dense, LeakyReLU, Dropout, Input
@@ -7,7 +6,6 @@ from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.optimizers import Adam
 import os
 import joblib
-import json
 
 #  Global Quantiles 
 quantiles = [0.1, 0.5, 0.9]
@@ -41,6 +39,7 @@ def create_single_quantile_model(input_shape, q):
 
 #  Training 
 def train_quantile_models(X_train, y_train, X_test, y_test):
+
     quantile_models = {}
     quantile_predictions = {}
     for q in quantiles:
@@ -52,11 +51,29 @@ def train_quantile_models(X_train, y_train, X_test, y_test):
         quantile_predictions[f'q_{int(q * 100)}'] = model.predict(X_test, verbose=0).flatten()
     return quantile_predictions, quantile_models
 
-# Save/Load 
-def save_quantile_models(quantile_models, scaler, features_list, model_dir="models"):
+# -Save/Load 
+def save_quantile_models(quantile_models, scaler, model_dir="models"):
     os.makedirs(model_dir, exist_ok=True)
     for q_name, model in quantile_models.items():
         model_path = os.path.join(model_dir, f"hoep_quantile_{q_name}.keras")
         model.save(model_path)
     joblib.dump(scaler, os.path.join(model_dir, "quantile_feature_scaler.pkl"))
-  
+
+
+
+#  Evaluation 
+def evaluate_quantile_predictions(y_true, quantile_predictions):
+    results = {}
+    for q_name, q_pred in quantile_predictions.items():
+        q_value = float(q_name.split('_')[1]) / 100
+        error = y_true - q_pred
+        pinball = np.mean(np.maximum(q_value * error, (q_value - 1) * error))
+        coverage = np.mean(y_true <= q_pred)
+        rmse = np.sqrt(np.mean((y_true - q_pred) ** 2))
+        results[q_name] = {
+            'pinball_loss': pinball,
+            'coverage': coverage,
+            'expected_coverage': q_value,
+            'rmse': rmse
+        }
+    return results
