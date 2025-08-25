@@ -1,17 +1,6 @@
 # HOEP Forecasting App ⚡
 
 A real-time electricity price forecasting application for the Hourly Ontario Energy Price (HOEP) using machine learning and live data integration.
-
----
-
-## Research Background
-
-This application is an offshoot of my ongoing electricity market research, prioritizing **uncertainty quantification over speed** using feed-forward neural networks with quantile predictions. Rather than pursuing millisecond inference times, this system focuses on providing robust confidence intervals for price forecasts, which is crucial for risk management in electricity markets.
-
-The research-to-production pipeline demonstrates end-to-end deployment of machine learning research, taking academic concepts through to live, automated forecasting systems with real market data.
-
-*Research paper link will be added upon publication.*
-
 ---
 
 ## 🚀 Live Demo
@@ -27,21 +16,21 @@ The live application provides:
 ---
 ## Application Features
 
-### Main Dashboard
+**Main Dashboard**
 ![Homepage](assets/home_page)
 
 - **Live Countdown**: Timer to next prediction at the 56th minute when MCPs finalize
 - **Current Forecast**: $XX.XX median price with 80% confidence band ($XX.XX - $XX.XX)
 - **Price Trends**: Interactive 24-hour HOEP chart showing market volatility (scroll below)
 
-### Performance Analytics Dashboard
+**Performance Analytics Dashboard**
 ![Actual vs Predicted](assets/plot)
 
 - **Prediction vs Actual**: 24-hour rolling comparison with actual HOEP prices
 - **Model Performance**: Quantile coverage analysis (target: 80%, actual: XX%)
 - **Error Metrics**: Mean Absolute Error tracking for forecast accuracy
 
-### Manual Prediction Interface  
+**Manual Prediction Interface**  
 ![Manual Prediction](assets/manualprediction)
 
 - **On-Demand Forecasting**: Generate predictions outside the regular hourly schedule
@@ -51,7 +40,7 @@ The live application provides:
 
 ## Technical Architecture
 
-### System Overview
+**System Overview**
 ```
 Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Quantile Models → GitHub → Streamlit Dashboard
 ```
@@ -109,7 +98,7 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 
 ## Future Enhancements
 
-### Model Improvements
+**Model Improvements**
 - **Feature Selection**: Remove noisy variables identified in research
 - **Architecture Optimization**: Explore ensemble methods and alternative quantile approaches
 - **Multi-Horizon**: Extend to 1-6 hour forecasting
