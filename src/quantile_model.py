@@ -104,34 +104,3 @@ def calculate_prediction_intervals(quantile_predictions, confidence_levels=[0.8]
             }
     return intervals
 
-
-# Visualization 
-def plot_quantile_predictions(y_true, quantile_predictions, start_idx=0, end_idx=200):
-    x = range(start_idx, min(end_idx, len(y_true)))
-    plt.figure(figsize=(12, 6))
-    plt.plot(x, y_true[start_idx:end_idx], 'k-', label='Actual HOEP', linewidth=2)
-    if 'q_50' in quantile_predictions:
-        plt.plot(x, quantile_predictions['q_50'][start_idx:end_idx], 'r--', label='Median Prediction', linewidth=2)
-    if 'q_10' in quantile_predictions and 'q_90' in quantile_predictions:
-        plt.fill_between(x, quantile_predictions['q_10'][start_idx:end_idx], quantile_predictions['q_90'][start_idx:end_idx], alpha=0.3, color='blue', label='80% Prediction Interval')
-    plt.xlabel('Time (hours)')
-    plt.ylabel('HOEP (CAD/MWh)')
-    plt.title('Quantile Regression with Uncertainty Bands')
-    plt.grid(True, alpha=0.3)
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
-
-def load_quantile_models(model_dir="models"):
-    """Load all three quantile models with custom loss functions"""
-    custom_objects_10 = {'loss': quantile_loss(0.1)}
-    custom_objects_50 = {'loss': quantile_loss(0.5)}  
-    custom_objects_90 = {'loss': quantile_loss(0.9)}
-    
-    models = {
-        'q10': load_model(f"{model_dir}/hoep_quantile_q_10.keras", custom_objects=custom_objects_10),
-        'q50': load_model(f"{model_dir}/hoep_quantile_q_50.keras", custom_objects=custom_objects_50), 
-        'q90': load_model(f"{model_dir}/hoep_quantile_q_90.keras", custom_objects=custom_objects_90)
-    }
-    
-    return models
