@@ -1,5 +1,5 @@
 # HOEP Forecasting App ⚡
-
+---
 A real-time electricity price forecasting application for the Hourly Ontario Energy Price (HOEP) using machine learning and live data integration.
 ---
 
@@ -16,21 +16,21 @@ The live application provides:
 ---
 ## Application Features
 
-**Main Dashboard**
+### Main Dashboard
 ![Homepage](assets/home_page)
 
 - **Live Countdown**: Timer to next prediction at the 56th minute when MCPs finalize
 - **Current Forecast**: $XX.XX median price with 80% confidence band ($XX.XX - $XX.XX)
 - **Price Trends**: Interactive 24-hour HOEP chart showing market volatility (scroll below)
 
-**Performance Analytics Dashboard**
+### Performance Analytics Dashboard
 ![Actual vs Predicted](assets/plot)
 
 - **Prediction vs Actual**: 24-hour rolling comparison with actual HOEP prices
 - **Model Performance**: Quantile coverage analysis (target: 80%, actual: XX%)
 - **Error Metrics**: Mean Absolute Error tracking for forecast accuracy
 
-**Manual Prediction Interface**  
+### Manual Prediction Interface
 ![Manual Prediction](assets/manualprediction)
 
 - **On-Demand Forecasting**: Generate predictions outside the regular hourly schedule
@@ -87,7 +87,7 @@ Google Cloud Scheduler → Cloud Function (cloud_entry) → Live Data APIs → Q
 
 ## Model Performance
 
-### Metric Results
+**Metric Results**
 - **Median Forecast RMSE**: 24.17 CAD/MWh (2024 test data)
 - **Hour-2 Predispatch RMSE**: 29.67 CAD/MWh (baseline comparison)
 - **Performance Improvement**: 18.5% lower RMSE than IESO predispatch
