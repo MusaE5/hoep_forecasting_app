@@ -73,26 +73,25 @@ def get_ontario_zonal_average():
     Returns: (average_price, timestamp)
     """
     try:
-        # Fetch and parse XML
         response = requests.get(URL_ZONAL_PRICE, headers=HEADERS, timeout=15)
         response.raise_for_status()
         root = ET.fromstring(response.content)
 
-        # Find the first RealTimePriceComponents block (Zonal Price)
-        zonal_price_block = root.find('.//ns:RealTimePriceComponents[ns:OntarioZonalPrice="Zonal Price"]', NAMESPACE)
-        
-        if zonal_price_block is None:
-            raise ValueError("Zonal Price section not found in XML")
+        # AveragePrice block contains LmpCap (zonal), LossPriceCap, CongPriceCap
+        avg_block = root.find(".//ns:AveragePrice", NAMESPACE)
 
-        # Extract the official average
-        average = zonal_price_block.find('ns:AverageHeading', NAMESPACE)
-        if average is None or not average.text:
-            raise ValueError("Average value not found in Zonal Price section")
+        if avg_block is None:
+            raise ValueError("AveragePrice block not found")
 
-        # Extract timestamp
-        timestamp = root.find('.//ns:CreatedAt', NAMESPACE).text
+        lmp = avg_block.find("ns:LmpCap", NAMESPACE)
 
-        return float(average.text), timestamp
+        if lmp is None or not lmp.text:
+            raise ValueError("LmpCap not found in AveragePrice")
+
+        timestamp = root.find(".//ns:CreatedAt", NAMESPACE)
+        ts = timestamp.text if timestamp is not None else None
+
+        return float(lmp.text.strip()), ts
 
     except Exception as e:
         print(f"Zonal Price Error: {e}")
@@ -191,4 +190,3 @@ def fetch_live_features_only():
     except Exception as e:
         print(f"❌ Error in fetch_live_features_only: {e}")
         return None
-
