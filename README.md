@@ -7,7 +7,7 @@ A real-time electricity price forecasting application for the Hourly Ontario Ene
 
 ## 🚀 Live Demo
 
-**Try it now**: [Ontario Electricity Forecasting App](https://hoep-forecasting-app.onrender.com/)
+**Try it now**: [Ontario Electricity Forecasting App](https://hoep-forecasting-app.onrender.com/)  **Render credits were too expensive, currently unavailable**
 
 The live application provides:
 - Real-time price forecasts with uncertainty quantification
